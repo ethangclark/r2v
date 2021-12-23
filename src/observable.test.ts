@@ -41,3 +41,30 @@ test("observable + autorun", () => {
   expect(quadrupleVRunner).toHaveReturnedWith(8);
   expect(quadrupleVRunner).toHaveReturnedWith(12);
 });
+
+test("auto-generated setters", () => {
+  const myObs = observable("withSettersObs", {
+    a: 2,
+  });
+  expect(myObs.a).toBe(2);
+  expect(typeof myObs.setA).toBe("function");
+  myObs.setA(3);
+  expect(myObs.a).toBe(3);
+});
+
+test("custom setters + setting new setters works", () => {
+  const myObs = observable("horribleSetterSetterThing", {
+    a: 2,
+    setA(v: number) {
+      this.a = v * 2;
+    },
+  });
+  expect(myObs.a).toEqual(2);
+  myObs.setA(2);
+  expect(myObs.a).toEqual(4);
+  myObs.setSetA(function (v: number) {
+    myObs.a = v * 3;
+  });
+  myObs.setA(2);
+  expect(myObs.a).toBe(6);
+});

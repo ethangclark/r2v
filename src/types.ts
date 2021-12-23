@@ -8,3 +8,10 @@ export type ObservableFields =
   | ((...params: any[]) => void);
 
 export type ObservableBase = { [key: string]: ObservableFields };
+
+export type ObservableCollection = { [key: string]: ObservableBase };
+
+// https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
+export type Setters<T> = {
+  [Key in keyof T as `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
+};
