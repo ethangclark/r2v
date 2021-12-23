@@ -33,7 +33,7 @@ export function observable<T extends ObservableBase>(
     const { value } =
       Object.getOwnPropertyDescriptor(observableBase, key) || {};
     if (value instanceof Function) {
-      const boundMethod = value.bind(observableBase); // TODO: remove? maybe use self-reference pattern instead?
+      const boundMethod = value.bind(observableBase); // necessary. own-variable reference doesn't work with TS
       (observableBase as unknown as Record<string, Function>)[key] = (
         ...args: Array<any>
       ) => {

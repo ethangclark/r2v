@@ -18,9 +18,12 @@ export function initializeIdempotent(baseState: ObservableBase) {
   }
   initialized = true;
   if (!extension) {
-    return console.error(
-      "install Redux DevTools (Google it) to see application state"
-    );
+    if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
+      console.error(
+        "install Redux DevTools (Google it) to see application state"
+      );
+    }
+    return;
   }
   reduxStore = createStore(() => loggedOnDispatch, baseState, extension());
 }
