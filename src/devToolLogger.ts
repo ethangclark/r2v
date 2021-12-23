@@ -13,19 +13,15 @@ let toLog: Record<string, ObservableBase> = {};
 // if any observable's JSON representation has changed, sets toLog = { ...toLog, ...changes }
 // (Redux uses object equality comparison to determine if changes have taken place)
 function prepForLogging() {
-  let changed = false;
+  toLog = { ...toLog };
   Object.entries(observablesAsJson).forEach(
     ([observableName, observableJson]) => {
       if (lastLoggedAsJson[observableName] !== observableJson) {
         toLog[observableName] = JSON.parse(observableJson);
-        changed = true;
       }
     }
   );
-  if (changed) {
-    toLog = { ...toLog };
-    lastLoggedAsJson = observablesAsJson;
-  }
+  lastLoggedAsJson = { ...observablesAsJson };
 }
 
 const extension: Function | null = (() => {

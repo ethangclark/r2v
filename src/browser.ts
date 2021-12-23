@@ -16,6 +16,7 @@ autorun(() => {
 });
 
 obs1.setA(123);
+obs1.setA(123);
 obs2.setB(1515);
 
 // // eslint-disable-next-line @typescript-eslint/no-explicit-any
