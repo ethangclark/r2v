@@ -26,7 +26,7 @@ export function observable<T extends ObservableBase>(
   observableBase: T
 ): T {
   if (observables[observableName]) {
-    throw new Error(`observableName "${observableName}" is already in use`);
+    throw Error(`observableName "${observableName}" is already in use`);
   }
   updateObservablesJson(observableName, observableBase);
   Object.keys(observableBase).forEach((key) => {
@@ -51,9 +51,8 @@ export function observable<T extends ObservableBase>(
       };
     }
   });
-  makeAutoObservable(observableBase);
-  const observable = observableBase; // it is now "officially" an observable
-  observables[observableName] = observable;
+  makeAutoObservable(observableBase); // note: makeAutoObservable transforms the original object
+  observables[observableName] = observableBase;
   setTimeout(() => initializeIdempotent(observablesAsJson));
-  return observable;
+  return observableBase;
 }
