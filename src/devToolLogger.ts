@@ -1,5 +1,32 @@
 import { createStore, Store, Action } from "redux";
-import { ObservableBase } from "./types";
+import { ObservableBase, ObservableCollection } from "./types";
+
+let observablesAsJson: Record<string, string> = {};
+
+export function noteObservable(observableName: string, obs: ObservableBase) {
+  observablesAsJson[observableName] = JSON.stringify(obs);
+}
+
+let lastLoggedAsJson: Record<string, string> = {};
+let toLog: Record<string, ObservableBase> = {};
+
+// if any observable's JSON representation has changed, sets toLog = { ...toLog, ...changes }
+// (Redux uses object equality comparison to determine if changes have taken place)
+function prepForLogging() {
+  let changed = false;
+  Object.entries(observablesAsJson).forEach(
+    ([observableName, observableJson]) => {
+      if (lastLoggedAsJson[observableName] !== observableJson) {
+        toLog[observableName] = JSON.parse(observableJson);
+        changed = true;
+      }
+    }
+  );
+  if (changed) {
+    toLog = { ...toLog };
+    lastLoggedAsJson = observablesAsJson;
+  }
+}
 
 const extension: Function | null = (() => {
   if (typeof window === "undefined") {
@@ -9,10 +36,9 @@ const extension: Function | null = (() => {
 })();
 
 let reduxStore: Store<ObservableBase, Action<any>> | null = null;
-let loggedOnDispatch: ObservableBase = {};
 
 let initialized = false;
-export function initializeIdempotent(baseState: ObservableBase) {
+export function initializeIdempotent() {
   if (initialized) {
     return;
   }
@@ -25,16 +51,23 @@ export function initializeIdempotent(baseState: ObservableBase) {
     }
     return;
   }
-  reduxStore = createStore(() => loggedOnDispatch, baseState, extension());
+  prepForLogging();
+  reduxStore = createStore(() => toLog, toLog, extension());
 }
 
 export function logResultantState(
   event: ObservableBase & { type: string },
-  state: ObservableBase
+  observables: ObservableCollection
 ) {
-  initializeIdempotent({});
+  initializeIdempotent();
   if (reduxStore) {
-    loggedOnDispatch = JSON.parse(JSON.stringify(state));
+    Object.entries(observables).forEach(([observableName, obs]) => {
+      noteObservable(observableName, obs);
+    });
+    prepForLogging();
     reduxStore.dispatch(event);
   }
 }
+
+// ensure initialization happens so that base state shows up in devTools
+setTimeout(initializeIdempotent);

@@ -9,7 +9,7 @@ export type ObservableFields =
 
 export type ObservableBase = { [key: string]: ObservableFields };
 
-export type ObservableCollection = { [key: string]: ObservableBase };
+export type ObservableCollection = Record<string, ObservableBase>;
 
 // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
 export type Setters<T> = {
