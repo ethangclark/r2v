@@ -1,5 +1,21 @@
 # `better-mobx`
 
-better-mobx is a simplified replacement for mobx, mobx-react, and most parts of React hooks.
+better-mobx is a better version of mobx that replaces a bunch of repetitive React Hook tedium, specifically `useState`, `useMemo`, `useCallback`, and `useContext`.
 
-It is way more terse than hooks, way less confusing than Mobx's bajillion functions, and lets you see all of your application state in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), which is nice.
+Also it logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), which is nice.
+
+## API (TODO)
+
+### observable
+
+### autorun / reaction
+
+(TODO: adapt from https://mobx.js.org/reactions.html)
+
+### runInAction
+
+(todo: explain transaction idea)
+
+
+## Examples
+
