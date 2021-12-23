@@ -1,52 +1,59 @@
-import { makeAutoObservable } from "mobx";
 export { autorun, reaction } from "mobx";
 export { observer } from "mobx-react";
+
+import { makeAutoObservable } from "mobx";
+import { ObservableBase } from "./types";
 import { initializeIdempotent, logResultantState } from "./reduxDevToolLogger";
 
-const stores = {};
-let storesJson = {};
-function updateStoresJson(storeName: string, storeBase: {}) {
-  storesJson = {
-    ...storesJson,
-    [storeName]: JSON.parse(JSON.stringify(storeBase)),
+type ObservableCollection = { [key: string]: ObservableBase };
+
+const observables: ObservableCollection = {};
+let observablesAsJson: ObservableCollection = {};
+function updateObservablesJson(
+  observableName: string,
+  observableBase: ObservableBase
+) {
+  observablesAsJson = {
+    ...observablesAsJson,
+    [observableName]: JSON.parse(JSON.stringify(observableBase)),
   };
 }
 
 const stack: string[] = [];
 
-export function observable<T extends object>(
-  objectName: string,
-  objectBase: T
+export function observable<T extends ObservableBase>(
+  observableName: string,
+  observableBase: T
 ): T {
-  if (stores[objectName]) {
-    throw new Error(`storeName "${objectName}" is already in use`);
+  if (observables[observableName]) {
+    throw new Error(`observableName "${observableName}" is already in use`);
   }
-  if (Object.getPrototypeOf(objectBase) !== Object.getPrototypeOf({})) {
-    throw new Error("storeBase must be a plain object");
-  }
-  updateStoresJson(objectName, objectBase);
-  Object.keys(objectBase).forEach((key) => {
-    const { value } = Object.getOwnPropertyDescriptor(objectBase, key) || {};
+  updateObservablesJson(observableName, observableBase);
+  Object.keys(observableBase).forEach((key) => {
+    const { value } =
+      Object.getOwnPropertyDescriptor(observableBase, key) || {};
     if (value instanceof Function) {
-      const boundMethod = value.bind(objectBase);
-      objectBase[key] = (...args) => {
-        initializeIdempotent(storesJson);
+      const boundMethod = value.bind(observableBase); // TODO: remove? maybe use self-reference pattern instead?
+      (observableBase as unknown as Record<string, Function>)[key] = (
+        ...args: Array<any>
+      ) => {
+        initializeIdempotent(observablesAsJson);
         const stackSnapshot = [...stack];
-        const methodSignature = `${objectName}.${key}`;
+        const methodSignature = `${observableName}.${key}`;
         stack.push(methodSignature);
         boundMethod(...args);
         stack.pop();
-        updateStoresJson(objectName, objectBase);
+        updateObservablesJson(observableName, observableBase);
         logResultantState(
           { type: methodSignature, methodCallStack: stackSnapshot },
-          storesJson
+          observablesAsJson
         );
       };
     }
   });
-  makeAutoObservable(objectBase);
-  const store = objectBase as T;
-  stores[objectName] = store;
-  setTimeout(() => initializeIdempotent(storesJson));
-  return store;
+  makeAutoObservable(observableBase);
+  const observable = observableBase; // it is now "officially" an observable
+  observables[observableName] = observable;
+  setTimeout(() => initializeIdempotent(observablesAsJson));
+  return observable;
 }

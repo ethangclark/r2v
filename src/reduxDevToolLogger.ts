@@ -1,5 +1,5 @@
 import { createStore, Store, Action } from "redux";
-import { JsonObject } from "./types";
+import { ObservableBase } from "./types";
 
 const extension: Function | null = (() => {
   if (typeof window === "undefined") {
@@ -8,12 +8,11 @@ const extension: Function | null = (() => {
   return (window as any).__REDUX_DEVTOOLS_EXTENSION__ || null;
 })();
 
-let reduxStore: Store<JsonObject, Action<any>> | null = null;
-let loggedOnDispatch: JsonObject = {};
+let reduxStore: Store<ObservableBase, Action<any>> | null = null;
+let loggedOnDispatch: ObservableBase = {};
 
 let initialized = false;
-
-export function initializeIdempotent(baseState: JsonObject) {
+export function initializeIdempotent(baseState: ObservableBase) {
   if (initialized) {
     return;
   }
@@ -27,8 +26,8 @@ export function initializeIdempotent(baseState: JsonObject) {
 }
 
 export function logResultantState(
-  event: JsonObject & { type: string },
-  state: JsonObject
+  event: ObservableBase & { type: string },
+  state: ObservableBase
 ) {
   initializeIdempotent({});
   if (reduxStore) {

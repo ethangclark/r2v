@@ -1,9 +1,10 @@
-export type Json =
-  | string
-  | number
-  | boolean
+export type ObservableFields =
   | null
-  | { [key: string]: Json }
-  | Array<Json>;
+  | boolean
+  | number
+  | string
+  | Array<ObservableFields>
+  | { [key: string]: ObservableFields }
+  | ((...params: any[]) => void);
 
-export type JsonObject = { [key: string]: Json };
+export type ObservableBase = { [key: string]: ObservableFields };
