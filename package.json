@@ -26,8 +26,8 @@
     "build": "tsc -p tsconfig.json",
     "build-all": "yarn clean && yarn build && yarn esbuild-node && yarn esbuild-browser",
     "esbuild-browser": "esbuild src/browser.ts --bundle --minify --sourcemap=external --outfile=dist/esbuild/browser.js",
-    "esbuild-browser:dev": "esbuild src/browser.ts --bundle --outfile=dist/esbuild/browser.js",
-    "esbuild-browser:watch": "esbuild src/browser.ts --bundle --watch --outfile=dist/esbuild/browser.js"
+    "esbuild-browser:dev": "esbuild src/browser.ts --bundle --sourcemap=both --outfile=dist/esbuild/browser.js",
+    "esbuild-browser:watch": "esbuild src/browser.ts --bundle --sourcemap=both --watch --outfile=dist/esbuild/browser.js"
   },
   "devDependencies": {
     "@types/jest": "^26.0.21",
