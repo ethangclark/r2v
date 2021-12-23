@@ -3,7 +3,7 @@ export { observer } from "mobx-react";
 
 import { makeAutoObservable } from "mobx";
 import { ObservableBase } from "./types";
-import { initializeIdempotent, logResultantState } from "./reduxDevToolLogger";
+import { initializeIdempotent, logResultantState } from "./devToolLogger";
 
 type ObservableCollection = { [key: string]: ObservableBase };
 
