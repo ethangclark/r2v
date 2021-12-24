@@ -19,4 +19,15 @@ describe("addSettersWhereNoExist", () => {
     o.setA(2);
     expect(o.a).toBe(4);
   });
+  it("does not define a setter for a custom setter", () => {
+    const o = {
+      a: 2,
+      setA(v: number) {
+        o.a = v * 2;
+      },
+    };
+    const withSetters = addSettersWhereNoExist(o);
+    //@ts-expect-error
+    expect(withSetters.setSetA).toBeUndefined();
+  });
 });

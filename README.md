@@ -4,7 +4,7 @@ better-mobx lets you skip a bunch of React Hook tedium, specifically `useState`,
 
 Also it logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), which is nice.
 
-## API (TODO)
+## API
 
 ### observable
 
