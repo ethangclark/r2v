@@ -30,4 +30,30 @@ describe("addSettersWhereNoExist", () => {
     //@ts-expect-error
     expect(withSetters.setSetA).toBeUndefined();
   });
+  it("defines a setter that throws errors for computed property", () => {
+    const o = {
+      a: 2,
+      get doubleA() {
+        return this.a * 2;
+      },
+    };
+    const withSetters = addSettersWhereNoExist(o);
+    expect(() => withSetters.setDoubleA(12321)).toThrow(
+      `can't set value for computed property "doubleA" using auto-generated setter`
+    );
+  });
+  it("respects custom setter for computed property", () => {
+    const o = {
+      a: 2,
+      get doubleA() {
+        return this.a * 2;
+      },
+      setDoubleA(v: number) {
+        this.a = v / 2;
+      },
+    };
+    const withSetters = addSettersWhereNoExist(o);
+    withSetters.setDoubleA(6);
+    expect(withSetters.a).toEqual(3);
+  });
 });

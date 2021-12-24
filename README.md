@@ -48,6 +48,16 @@ Methods can modify other observables, and computed state can reference state in 
 ## Examples
 
 
-## Unsolved problems
+## Gotchas
 
-We don't want setters to be generated automatically for `get x()` (readonly/computed fields), but we don't have a way to do that without messing up type safety. As such, if `get x()` is defined, `setX` will be defined automatically, but will be a no-op...
+### Auto-generated computed property setters
+
+Ideally `better-mobx` would not auto-generate setters for computed properties (e.g., `get x()` would not result in `setX()` being available). Unfortunately, TypeScript doesn't let us differentiate between readonly/computed properties and non-readonly/computed properties in our type definitions. So we've opted to make auto-generated setters for computed properties always throw a descriptive error.
+
+In other words, if you define `get x()` in your observable, `setX()` will also be generated, but will throw an error if you call it. If you define `setX()` yourself, `setX()` will work how you defined it, and not throw an error.
+
+
+
+
+
+TODO: remove autobinding?? Because apparently I was wrong that self-reference doesn't work??

@@ -23,6 +23,13 @@ function shouldNotDefineSetter(key: string, observableBase: ObservableBase) {
   }
   return false;
 }
+function shouldDefineErroringSetter(
+  key: string,
+  observableBase: ObservableBase
+) {
+  const { get } = Object.getOwnPropertyDescriptor(observableBase, key) || {};
+  return get instanceof Function;
+}
 
 // mutates in-place
 export function addSettersWhereNoExist<T extends ObservableBase>(
@@ -33,11 +40,18 @@ export function addSettersWhereNoExist<T extends ObservableBase>(
       return;
     }
     const setterName = fieldNameToSetterName(key);
-    (observableBase as Record<string, any>)[setterName] = function (
-      value: any
-    ) {
-      this[key] = value;
-    };
+    const asRecord = observableBase as Record<string, any>;
+    if (shouldDefineErroringSetter(key, observableBase)) {
+      asRecord[setterName] = function () {
+        throw Error(
+          `can't set value for computed property "${key}" using auto-generated setter`
+        );
+      };
+    } else {
+      asRecord[setterName] = function (value: any) {
+        this[key] = value;
+      };
+    }
   });
   return observableBase as T & Setters<T>;
 }
