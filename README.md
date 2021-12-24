@@ -8,6 +8,10 @@ Also it logs everything in [Redux DevTools](https://chrome.google.com/webstore/d
 
 ### observable
 
+- automatic typesafe setter generation
+
+### observer
+
 ### autorun / reaction
 
 (TODO: adapt from https://mobx.js.org/reactions.html)

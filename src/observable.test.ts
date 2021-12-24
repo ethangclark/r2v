@@ -52,8 +52,8 @@ test("auto-generated setters", () => {
   expect(myObs.a).toBe(3);
 });
 
-test("custom setters + setting new setters works", () => {
-  const myObs = observable("horribleSetterSetterThing", {
+test("custom setters are respected", () => {
+  const myObs = observable("withCustomSetter", {
     a: 2,
     setA(v: number) {
       this.a = v * 2;
@@ -62,9 +62,15 @@ test("custom setters + setting new setters works", () => {
   expect(myObs.a).toEqual(2);
   myObs.setA(2);
   expect(myObs.a).toEqual(4);
-  myObs.setSetA(function (v: number) {
-    myObs.a = v * 3;
+});
+
+test("setters are not generated for custom setters", () => {
+  const myObs = observable("withCustomSetter2", {
+    a: 2,
+    setA(v: number) {
+      this.a = v * 2;
+    },
   });
-  myObs.setA(2);
-  expect(myObs.a).toBe(6);
+  // @ts-expect-error
+  expect(myObs.setSetA).toBeUndefined();
 });
