@@ -9,6 +9,7 @@ Also it logs everything in [Redux DevTools](https://chrome.google.com/webstore/d
 ### observable
 
 - automatic typesafe setter generation
+- baseobj will be mutated
 
 ### observer
 
