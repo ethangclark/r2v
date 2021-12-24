@@ -44,6 +44,6 @@ type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
 export type Setters<T> = {
   [Key in keyof T as Key extends `set${Caps}${string}`
-    ? Key
+    ? never
     : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
 };
