@@ -1,8 +1,6 @@
-/**
- * This file is the entrypoint of browser builds.
- * The code executes when loaded in a browser.
- */
-import { observable, autorun } from "./main";
+import React from "react";
+import { observable, autorun, observer } from "./main";
+import { render } from "react-dom";
 
 const obs1 = observable("obs1", {
   a: 2,
@@ -17,7 +15,19 @@ autorun(() => {
 
 obs1.setA(123);
 obs1.setA(123);
-obs2.setB(1515);
+obs2.setB(124);
+
+const MyComponent = observer(() => (
+  <div>
+    Hello
+    <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
+    <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
+  </div>
+));
+
+window.onload = () => {
+  render(<MyComponent />, document.getElementById("root"));
+};
 
 // // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // (window as any).foo = foo  // instead of casting window to any, you can extend the Window interface: https://stackoverflow.com/a/43513740/5433572
