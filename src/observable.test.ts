@@ -1,5 +1,5 @@
 import { autorun } from "mobx";
-import { observable } from "./main";
+import { observable, runInAction } from "./main";
 
 test("observable + autorun", () => {
   const state = observable("myObs", {
@@ -73,4 +73,35 @@ test("setters are not generated for custom setters", () => {
   });
   // @ts-expect-error
   expect(myObs.setSetA).toBeUndefined();
+});
+
+test("runInAction", () => {
+  let doubleVCalled = 0;
+  const state = observable("runInAction test obs", {
+    v: 2,
+    updateV(newValue: number) {
+      state.v = newValue;
+    },
+    get doubleV() {
+      doubleVCalled++;
+      return this.v * 2;
+    },
+  });
+
+  const doubleVRunner = jest.fn(() => {
+    expect(state.v * 2).toEqual(state.doubleV);
+    return state.doubleV; // calling doubleV
+  });
+  autorun(doubleVRunner);
+
+  runInAction(() => {
+    state.setV(3);
+    state.setV(4);
+    state.setV(5);
+  });
+
+  expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
+  expect(state.doubleV).toEqual(10);
+  expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
+  expect(doubleVCalled).toEqual(2);
 });
