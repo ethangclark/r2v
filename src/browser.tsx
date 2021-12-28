@@ -1,6 +1,6 @@
 import React from "react";
-import { observable, autorun, observer } from "./main";
 import { render } from "react-dom";
+import { observable, autorun, observer } from "./main";
 
 const obs1 = observable("obs1", {
   a: 2,

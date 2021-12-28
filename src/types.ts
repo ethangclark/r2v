@@ -6,17 +6,19 @@ export type Json =
   | Array<Json>
   | { [key: string]: Json };
 
-export type ObservableBase = {
-  [key: string]: Json | (() => Function);
-};
+export type ObservableBase = Record<
+  string,
+  Json | (() => (...args: any[]) => any)
+>;
 
-export type AsObservable<T extends ObservableBase> = {
-  [Key in keyof T]: T[Key] extends Function ? ReturnType<T[Key]> : T[Key];
-};
+export type AsObservable<T extends ObservableBase> = Record<
+  keyof T,
+  T[keyof T] extends (...args: any[]) => any
+    ? ReturnType<T[keyof T]>
+    : T[keyof T]
+>;
 
-export type Observable = {
-  [key: string]: Json | Function;
-};
+export type Observable = Record<string, Json | ((...args: any[]) => any)>;
 
 export type ObservableCollection = Record<string, Observable>;
 
@@ -54,11 +56,13 @@ type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 export type ValueSetters<T> = {
   [Key in keyof T as Key extends `set${Caps}${string}`
     ? never
-    : `set${Capitalize<string & Key>}`]: T[Key] extends Function
+    : `set${Capitalize<string & Key>}`]: T[Key] extends (...args: any[]) => any
     ? never
     : (value: T[Key]) => void;
 };
 
-export type WithFunctionsAsReturns<T> = {
-  [Key in keyof T]: T[Key] extends () => Function ? ReturnType<T[Key]> : T[Key];
+export type WithMethodsUnthunk<T> = {
+  [Key in keyof T]: T[Key] extends () => (...args: any[]) => any
+    ? ReturnType<T[Key]>
+    : T[Key];
 };

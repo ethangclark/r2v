@@ -4,7 +4,7 @@ import {
   ObservableBase,
   ObservableCollection,
   ValueSetters,
-  WithFunctionsAsReturns,
+  WithMethodsUnthunk,
 } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
@@ -16,29 +16,27 @@ const methodStack: string[] = [];
 export function observable<T extends ObservableBase>(
   observableName: string,
   observableBase: T
-): WithFunctionsAsReturns<T> & ValueSetters<T> {
+): WithMethodsUnthunk<T> & ValueSetters<T> {
   if (observables[observableName]) {
     throw Error(`observableName "${observableName}" is already in use`);
   }
 
-  const hasHadFunctionsSetToReturns: WithFunctionsAsReturns<T> = (() => {
+  const hasHadMethodsUnthunk: WithMethodsUnthunk<T> = (() => {
     Object.entries(observableBase).forEach(([key, value]) => {
       if (value instanceof Function) {
-        (observableBase as Record<string, any>)[key] = value();
+        (observableBase as Record<string, any>)[key] = value(); // TODO
       }
     });
-    return observableBase as WithFunctionsAsReturns<T>;
+    return observableBase as WithMethodsUnthunk<T>;
   })();
 
-  const hasHadSettersAdded = addValueSettersWhereNoExist(
-    hasHadFunctionsSetToReturns
-  ); // mutates in-place
+  const hasHadSettersAdded = addValueSettersWhereNoExist(hasHadMethodsUnthunk); // mutates in-place
   Object.keys(hasHadSettersAdded).forEach((key) => {
     const { value } =
       Object.getOwnPropertyDescriptor(hasHadSettersAdded, key) || {};
     if (value instanceof Function) {
-      (hasHadSettersAdded as Record<string, Function>)[key] = computedFn(
-        (...args: Array<any>) => {
+      (hasHadSettersAdded as Record<string, (...args: any[]) => any>)[key] =
+        computedFn((...args: Array<any>) => {
           const stackSnapshot = [...methodStack];
           const methodSignature = `${observableName}.${key}`;
           methodStack.push(methodSignature);
@@ -54,14 +52,13 @@ export function observable<T extends ObservableBase>(
             observables
           );
           return result;
-        }
-      );
+        });
     }
   });
-  const hasHadSettersAddedAndFunctionsUnthunk =
-    hasHadSettersAdded as WithFunctionsAsReturns<T> & ValueSetters<T>;
+  const withUnthunkednessPresumedNotToConflictWithValueSetters =
+    hasHadSettersAdded as WithMethodsUnthunk<T> & ValueSetters<T>;
   const hasBeenMadeObservable = makeAutoObservable(
-    hasHadSettersAddedAndFunctionsUnthunk
+    withUnthunkednessPresumedNotToConflictWithValueSetters
   ); // mutates in-place
   observables[observableName] = hasBeenMadeObservable;
   noteObservable(observableName, hasBeenMadeObservable);

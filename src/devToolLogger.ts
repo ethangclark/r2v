@@ -32,7 +32,7 @@ function prepForLogging() {
   lastLoggedAsJson = { ...observablesAsJson };
 }
 
-const extension: Function | null = (() => {
+const extension: (...args: any) => any | null = (() => {
   if (typeof window === "undefined") {
     return null;
   }
@@ -64,11 +64,11 @@ export function initializeIdempotent() {
         Object.entries(state).forEach(([observableName, observableBase]) => {
           const obs = observables[observableName];
           obs &&
-            Object.entries(observableBase as Record<string, Json>).forEach(
-              ([fieldName, fieldValue]) => {
-                obs[fieldName] = fieldValue;
-              }
-            );
+            Object.entries(
+              observableBase as Record<string, { [key: string]: Json }>
+            ).forEach(([fieldName, fieldValue]) => {
+              obs[fieldName] = fieldValue;
+            });
         });
       });
     }
