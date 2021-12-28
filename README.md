@@ -82,3 +82,4 @@ In other words, if you define `get x()` in your observable, `setX()` will also b
 ## To investigate
 
 fetch-by-referencing
+TODO: fork mobx-utils to get rid of annoying "invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set" console.error
