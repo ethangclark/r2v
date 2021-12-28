@@ -65,6 +65,8 @@ All observable fields should only be modified via `setters`, which are auto-gene
 
 (TODO: adapt from https://mobx.js.org/reactions.html)
 
+reactively(reaction, postReaction? = () => {}, runPostRxnImmediately)
+
 ### runInAction
 
 (todo: explain transaction idea. See mobx documents.)
