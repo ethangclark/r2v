@@ -1,9 +1,9 @@
-import { addSettersWhereNoExist } from "./addSetters";
+import { addValueSettersWhereNoExist } from "./addSetters";
 
-describe("addSettersWhereNoExist", () => {
+describe("addValueSettersWhereNoExist", () => {
   it("adds setter where it does not exist", () => {
     const o = { a: 2 };
-    const withSetters = addSettersWhereNoExist(o);
+    const withSetters = addValueSettersWhereNoExist(o);
     expect(withSetters.setA).toBeInstanceOf(Function);
   });
   it("respects original setter", () => {
@@ -14,7 +14,7 @@ describe("addSettersWhereNoExist", () => {
       },
     };
     const originalSetter = o.setA;
-    const withSetters = addSettersWhereNoExist(o);
+    const withSetters = addValueSettersWhereNoExist(o);
     expect(withSetters.setA).toBe(originalSetter);
     o.setA(2);
     expect(o.a).toBe(4);
@@ -26,7 +26,7 @@ describe("addSettersWhereNoExist", () => {
         o.a = v * 2;
       },
     };
-    const withSetters = addSettersWhereNoExist(o);
+    const withSetters = addValueSettersWhereNoExist(o);
     //@ts-expect-error
     expect(withSetters.setSetA).toBeUndefined();
   });
@@ -37,7 +37,7 @@ describe("addSettersWhereNoExist", () => {
         return this.a * 2;
       },
     };
-    const withSetters = addSettersWhereNoExist(o);
+    const withSetters = addValueSettersWhereNoExist(o);
     expect(() => withSetters.setDoubleA(12321)).toThrow(
       `can't set value for computed property "doubleA" using auto-generated setter`
     );
@@ -52,7 +52,7 @@ describe("addSettersWhereNoExist", () => {
         this.a = v / 2;
       },
     };
-    const withSetters = addSettersWhereNoExist(o);
+    const withSetters = addValueSettersWhereNoExist(o);
     withSetters.setDoubleA(6);
     expect(withSetters.a).toEqual(3);
   });

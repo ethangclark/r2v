@@ -1,37 +1,46 @@
-import { autorun } from "mobx";
-import { observable, runInAction } from "./main";
+import { observable, runInAction, autorun } from "./main";
+
+test("computed prop", () => {
+  const state = observable("computedPropState", {
+    c: 2,
+    doubleC: () => () => {
+      return state.c * 2;
+    },
+  });
+  expect(state.doubleC()).toEqual(4);
+});
 
 test("observable + autorun", () => {
   const state = observable("myObs", {
     v: 2,
-    updateV(newValue: number) {
+    updateV: () => (newValue: number) => {
       state.v = newValue;
     },
-    get doubleV() {
-      return this.v * 2;
+    doubleV: () => () => {
+      return state.v * 2;
     },
-    get quadrupleV() {
-      return this.doubleV * 2;
+    quadrupleV: () => () => {
+      return state.doubleV() * 2;
     },
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV);
-    return state.doubleV;
+    expect(state.v * 2).toEqual(state.doubleV());
+    return state.doubleV();
   });
   autorun(doubleVRunner);
 
   const quadrupleVRunner = jest.fn(() => {
-    expect(state.v * 4).toEqual(state.quadrupleV);
-    return state.quadrupleV;
+    expect(state.v * 4).toEqual(state.quadrupleV());
+    return state.quadrupleV();
   });
   autorun(quadrupleVRunner);
 
   expect(state.v).toEqual(2);
-  expect(state.doubleV).toEqual(4);
+  expect(state.doubleV()).toEqual(4);
   state.updateV(3);
   expect(state.v).toEqual(3);
-  expect(state.doubleV).toEqual(6);
+  expect(state.doubleV()).toEqual(6);
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2);
   expect(doubleVRunner).toHaveReturnedWith(4);
@@ -55,8 +64,8 @@ test("auto-generated setters", () => {
 test("custom setters are respected", () => {
   const myObs = observable("withCustomSetter", {
     a: 2,
-    setA(v: number) {
-      this.a = v * 2;
+    setA: () => (v: number) => {
+      myObs.a = v * 2;
     },
   });
   expect(myObs.a).toEqual(2);
@@ -67,8 +76,8 @@ test("custom setters are respected", () => {
 test("setters are not generated for custom setters", () => {
   const myObs = observable("withCustomSetter2", {
     a: 2,
-    setA(v: number) {
-      this.a = v * 2;
+    setA: () => (v: number) => {
+      myObs.a = v * 2;
     },
   });
   // @ts-expect-error
@@ -79,18 +88,18 @@ test("runInAction", () => {
   let doubleVCalled = 0;
   const state = observable("runInAction test obs", {
     v: 2,
-    updateV(newValue: number) {
+    updateV: () => (newValue: number) => {
       state.v = newValue;
     },
-    get doubleV() {
+    doubleV: () => () => {
       doubleVCalled++;
-      return this.v * 2;
+      return state.v * 2;
     },
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV);
-    return state.doubleV; // calling doubleV
+    expect(state.v * 2).toEqual(state.doubleV());
+    return state.doubleV(); // calling doubleV
   });
   autorun(doubleVRunner);
 
@@ -101,7 +110,7 @@ test("runInAction", () => {
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
-  expect(state.doubleV).toEqual(10);
+  expect(state.doubleV()).toEqual(10);
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
 });

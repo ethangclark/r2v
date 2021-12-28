@@ -1,15 +1,16 @@
 import { createStore, Store, Action } from "redux";
 import {
   ObservableBase,
+  Observable,
   ObservableCollection,
-  ObservableFields,
+  Json,
 } from "./types";
 import { runInAction } from "./runInAction";
 
 const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};
 
-export function noteObservable(observableName: string, obs: ObservableBase) {
+export function noteObservable(observableName: string, obs: Observable) {
   observables[observableName] = obs;
   observablesAsJson[observableName] = JSON.stringify(obs);
 }
@@ -63,11 +64,11 @@ export function initializeIdempotent() {
         Object.entries(state).forEach(([observableName, observableBase]) => {
           const obs = observables[observableName];
           obs &&
-            Object.entries(
-              observableBase as Record<string, ObservableFields>
-            ).forEach(([fieldName, fieldValue]) => {
-              obs[fieldName] = fieldValue;
-            });
+            Object.entries(observableBase as Record<string, Json>).forEach(
+              ([fieldName, fieldValue]) => {
+                obs[fieldName] = fieldValue;
+              }
+            );
         });
       });
     }

@@ -1,4 +1,4 @@
-import { ObservableBase, Setters } from "./types";
+import { ObservableBase, ValueSetters } from "./types";
 
 function fieldNameToSetterName(fieldName: string) {
   return "set" + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1);
@@ -12,16 +12,19 @@ function setterNameToFieldName(setterName: string) {
 function isSetterWithDefinedField(key: string, observableBase: ObservableBase) {
   return /^set[A-Z]/.test(key) && setterNameToFieldName(key) in observableBase;
 }
-function shouldNotDefineSetter(key: string, observableBase: ObservableBase) {
+function shouldDefineSetter(key: string, observableBase: ObservableBase) {
+  if (observableBase[key] instanceof Function) {
+    return false;
+  }
   if (isSetterWithDefinedField(key, observableBase)) {
-    return true;
+    return false;
   }
   if (hasSetterDefined(key, observableBase)) {
-    return true; // do not override custom setters.
+    return false; // do not override custom setters.
     // If they define a field with a setter's name + a non-function value, TypeScript will punish them,
     // as their resultant type will include FunctionType & ValueType for the field
   }
-  return false;
+  return true;
 }
 function shouldDefineErroringSetter(
   key: string,
@@ -32,16 +35,16 @@ function shouldDefineErroringSetter(
 }
 
 // mutates in-place
-export function addSettersWhereNoExist<T extends ObservableBase>(
-  observableBase: T
-): T & Setters<T> {
-  Object.keys(observableBase).forEach((key) => {
-    if (shouldNotDefineSetter(key, observableBase)) {
+export function addValueSettersWhereNoExist<T extends {}>(
+  obj: T
+): T & ValueSetters<T> {
+  Object.keys(obj).forEach((key) => {
+    if (!shouldDefineSetter(key, obj)) {
       return;
     }
     const setterName = fieldNameToSetterName(key);
-    const asRecord = observableBase as Record<string, any>;
-    if (shouldDefineErroringSetter(key, observableBase)) {
+    const asRecord = obj as Record<string, any>;
+    if (shouldDefineErroringSetter(key, obj)) {
       asRecord[setterName] = function () {
         throw Error(
           `can't set value for computed property "${key}" using auto-generated setter`
@@ -49,9 +52,9 @@ export function addSettersWhereNoExist<T extends ObservableBase>(
       };
     } else {
       asRecord[setterName] = function (value: any) {
-        this[key] = value;
+        asRecord[key] = value;
       };
     }
   });
-  return observableBase as T & Setters<T>;
+  return obj as T & ValueSetters<T>;
 }

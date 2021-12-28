@@ -1,15 +1,24 @@
-export type ObservableFields =
+export type Json =
   | null
   | boolean
   | number
   | string
-  | Array<ObservableFields>
-  | { [key: string]: ObservableFields }
-  | ((...params: any[]) => void);
+  | Array<Json>
+  | { [key: string]: Json };
 
-export type ObservableBase = { [key: string]: ObservableFields };
+export type ObservableBase = {
+  [key: string]: Json | (() => Function);
+};
 
-export type ObservableCollection = Record<string, ObservableBase>;
+export type AsObservable<T extends ObservableBase> = {
+  [Key in keyof T]: T[Key] extends Function ? ReturnType<T[Key]> : T[Key];
+};
+
+export type Observable = {
+  [key: string]: Json | Function;
+};
+
+export type ObservableCollection = Record<string, Observable>;
 
 type NonCapsToCaps = {
   a: "A";
@@ -42,8 +51,14 @@ type NonCapsToCaps = {
 type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 
 // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
-export type Setters<T> = {
+export type ValueSetters<T> = {
   [Key in keyof T as Key extends `set${Caps}${string}`
     ? never
-    : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
+    : `set${Capitalize<string & Key>}`]: T[Key] extends Function
+    ? never
+    : (value: T[Key]) => void;
+};
+
+export type WithFunctionsAsReturns<T> = {
+  [Key in keyof T]: T[Key] extends () => Function ? ReturnType<T[Key]> : T[Key];
 };
