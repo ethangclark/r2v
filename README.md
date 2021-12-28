@@ -23,9 +23,9 @@ const state = observable('userState', {
 
   users: [] as Array<User>,
 
-  // better-mobx stores the result of this after it's called,
+  // better-mobx stores the result of this after it's called once,
   // and only ever recomputes it if `this.users` changes
-  get activeUsers() {
+  activeUsers() {
     return this.users.filter(u => !u.deactivated)
   },
 
@@ -40,7 +40,7 @@ export const UserTable = observer(() => (
   <div>
     <div>Total users: ${state.users.length}</div>
     <table>
-      { state.activeUsers.map(user => (
+      { state.activeUsers().map(user => (
         <tr key={user.id}>
           <td>{user.id}</td>
           <td>{user.fullName}</td>
@@ -54,7 +54,7 @@ export const UserTable = observer(() => (
 ))
 ```
 
-`observable`s support "computed state", which is shown by `get activeUsers()` above. "Computed state" only recomputes when fields it is derived from update.
+`observable`s support "computed state", which is shown by `activeUsers()` above. "Computed state" only recomputes when fields it is derived from update.
 
 It's worth noting that computed state is free to reference state and computed state on other observables, and methods (like `fetchUsers()`) are free to read from and modify state on other observables.
 
@@ -79,7 +79,11 @@ Ideally `better-mobx` would not auto-generate setters for computed properties (e
 
 In other words, if you define `get x()` in your observable, `setX()` will also be generated, but will throw an error if you call it. If you define `setX()` yourself, `setX()` will work how you defined it, and not throw an error.
 
-## To investigate
+## To investigate / TODO
 
-fetch-by-referencing
-TODO: fork mobx-utils to get rid of annoying "invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set" console.error
+- Fork mobx-utils to get rid of annoying "invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set" console.error
+- Only set setters for non-function values
+
+- Think through "boxed" value approach... would we want to support a flow for this?
+    - Answer: we can mention it, but don't add an official flow. Make them make what they are doing super explicit (including writing their own setter)
+        - value setter magic is plenty
