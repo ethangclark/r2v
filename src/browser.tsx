@@ -1,5 +1,5 @@
 import React from "react";
-import { observable, autorun, observer } from "./main";
+import { observable, reactively, observer } from "./main";
 import { render } from "react-dom";
 
 const obs1 = observable("obs1", {
@@ -12,7 +12,7 @@ const obs2 = observable("obs2", {
   },
 });
 
-autorun(() => {
+reactively(() => {
   console.log("a/b:", obs1.a, obs2.b);
 });
 
