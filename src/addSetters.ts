@@ -30,8 +30,9 @@ function shouldDefineErroringSetter(
   key: string,
   observableBase: ObservableBase
 ) {
-  const { get } = Object.getOwnPropertyDescriptor(observableBase, key) || {};
-  return get instanceof Function;
+  const { get, set } =
+    Object.getOwnPropertyDescriptor(observableBase, key) || {};
+  return get instanceof Function && set === undefined;
 }
 
 // mutates in-place
