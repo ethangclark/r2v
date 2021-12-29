@@ -41,7 +41,7 @@ const extension: Function | null = (() => {
 let reduxStore: Store<ObservableBase, Action<any>> | null = null;
 
 let initialized = false;
-export function initializeIdempotent() {
+function initializeIdempotent() {
   if (initialized) {
     return;
   }
