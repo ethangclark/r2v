@@ -5,6 +5,7 @@ import {
   Json,
 } from "./types";
 import { runInAction, createStore, Store, Action } from "./libraryImports";
+import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};
@@ -31,13 +32,6 @@ function prepForLogging() {
   lastLoggedAsJson = { ...observablesAsJson };
 }
 
-const extension: Function | null = (() => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  return (window as any).__REDUX_DEVTOOLS_EXTENSION__ || null;
-})();
-
 let reduxStore: Store<ObservableBase, Action<any>> | null = null;
 
 let initialized = false;
@@ -46,7 +40,7 @@ function initializeIdempotent() {
     return;
   }
   initialized = true;
-  if (!extension) {
+  if (!loggingExtension) {
     if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
       console.error(
         "install Redux DevTools (Google it) to see application state"
@@ -55,7 +49,7 @@ function initializeIdempotent() {
     return;
   }
   prepForLogging();
-  reduxStore = createStore(() => toLog, toLog, extension());
+  reduxStore = createStore(() => toLog, toLog, loggingExtension());
   reduxStore.subscribe(() => {
     const state = reduxStore?.getState();
     if (state && state !== toLog) {
