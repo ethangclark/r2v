@@ -70,26 +70,3 @@ reactively(reaction, postReaction? = () => {}, runPostRxnImmediately? = true)
 ### runInAction
 
 (todo: explain transaction idea. See mobx documents.)
-
-## Gotchas
-
-### Auto-generated computed property setters
-
-Ideally `better-mobx` would not auto-generate setters for computed properties (e.g., `get x()` would not result in `setX()` being available). Unfortunately, TypeScript doesn't let us differentiate between readonly/computed properties and non-readonly/computed properties in our type definitions. So we've opted to make auto-generated setters for computed properties always throw a descriptive error.
-
-In other words, if you define `get x()` in your observable, `setX()` will also be generated, but will throw an error if you call it. If you define `setX()` yourself, `setX()` will work how you defined it, and not throw an error.
-
-## To investigate / TODO
-
-- Fork mobx-utils to get rid of annoying "invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set" console.error
-- Only set setters for non-function values
-
-- Think through "boxed" value approach... would we want to support a flow for this?
-    - Answer: we can mention it, but don't add an official flow. Make them make what they are doing super explicit (including writing their own setter)
-        - value setter magic is plenty
-
-
-PROBLEMS:
-1: JEST is balking at non-thunked methods
-2: typedef for WithSetters is slightly wrong (key should return never if value is func -- not value)
-   ->  TO INVESTIGATE: check out ts-jest, which is used in jest.config.js
