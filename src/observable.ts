@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { computedFn } from "mobx-utils";
+import { computedFn } from "../mobx-utils/computedFn";
 import { ObservableBase, ObservableCollection, ValueSetters } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";

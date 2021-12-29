@@ -49,7 +49,6 @@
   "dependencies": {
     "mobx": "^6.3.10",
     "mobx-react-lite": "^3.2.2",
-    "mobx-utils": "^6.0.4",
     "redux": "^4.1.2"
   }
 }
