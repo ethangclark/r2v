@@ -34,22 +34,13 @@ function prepForLogging() {
 
 let reduxStore: Store<ObservableBase, Action<any>> | null = null;
 
-let initialized = false;
-function initializeIdempotent() {
-  if (initialized) {
-    return;
-  }
-  initialized = true;
-  if (!loggingExtension) {
-    if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
-      console.error(
-        "install Redux DevTools (Google it) to see application state"
-      );
-    }
-    return;
-  }
+function initialize() {
   prepForLogging();
-  reduxStore = createStore(() => toLog, toLog, loggingExtension());
+  reduxStore = createStore(
+    () => toLog,
+    toLog,
+    loggingExtension ? loggingExtension() : null
+  );
   reduxStore.subscribe(() => {
     const state = reduxStore?.getState();
     if (state && state !== toLog) {
@@ -66,6 +57,23 @@ function initializeIdempotent() {
       });
     }
   });
+}
+
+let initialized = false;
+function initializeIdempotent() {
+  if (initialized) {
+    return;
+  }
+  initialized = true;
+  if (!loggingExtension) {
+    if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
+      console.error(
+        "install Redux DevTools (Google it) to see application state"
+      );
+    }
+    return;
+  }
+  initialize();
 }
 
 export function logResultantState(
