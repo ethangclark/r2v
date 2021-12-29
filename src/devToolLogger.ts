@@ -32,11 +32,9 @@ function prepForLogging() {
   lastLoggedAsJson = { ...observablesAsJson };
 }
 
-let reduxStore: Store<ObservableBase, Action<any>> | null = null;
-
 function initialize() {
   prepForLogging();
-  reduxStore = createStore(
+  const reduxStore = createStore(
     () => toLog,
     toLog,
     loggingExtension ? loggingExtension() : null
@@ -57,12 +55,15 @@ function initialize() {
       });
     }
   });
+  return reduxStore;
 }
 
 let initialized = false;
+let reduxStore: Store<Record<string, ObservableBase>, Action<any>> | null =
+  null;
 function initializeIdempotent() {
   if (initialized) {
-    return;
+    return reduxStore;
   }
   initialized = true;
   if (!loggingExtension) {
@@ -71,9 +72,10 @@ function initializeIdempotent() {
         "install Redux DevTools (Google it) to see application state"
       );
     }
-    return;
+    return null;
   }
-  initialize();
+  reduxStore = initialize();
+  return reduxStore;
 }
 
 export function logResultantState(
