@@ -1,11 +1,10 @@
-import { createStore, Store, Action } from "redux";
 import {
   ObservableBase,
   Observable,
   ObservableCollection,
   Json,
 } from "./types";
-import { runInAction } from "./runInAction";
+import { runInAction, createStore, Store, Action } from "./libraryImports";
 
 const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};

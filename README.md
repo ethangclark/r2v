@@ -61,11 +61,11 @@ It's worth noting that computed state is free to reference state and computed st
 #### IMPORTANT
 All observable fields should only be modified via `setters`, which are auto-generated (like `setUsers()` above).
 
-### autorun / reaction
+### reactively
 
 (TODO: adapt from https://mobx.js.org/reactions.html)
 
-reactively(reaction, postReaction? = () => {}, runPostRxnImmediately)
+reactively(reaction, postReaction? = () => {}, runPostRxnImmediately? = true)
 
 ### runInAction
 

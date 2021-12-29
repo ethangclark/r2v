@@ -1,4 +1,4 @@
-import { observable, runInAction, autorun } from "./main";
+import { observable, runInAction, reactively } from "./main";
 
 test("computed prop", () => {
   const state = observable("computedPropState", {
@@ -10,7 +10,7 @@ test("computed prop", () => {
   expect(state.doubleC()).toEqual(4);
 });
 
-test("observable + autorun", () => {
+test("observable + reactively", () => {
   const state = observable("myObs", {
     v: 2,
     updateV(newValue: number) {
@@ -28,13 +28,13 @@ test("observable + autorun", () => {
     expect(state.v * 2).toEqual(state.doubleV());
     return state.doubleV();
   });
-  autorun(doubleVRunner);
+  reactively(doubleVRunner);
 
   const quadrupleVRunner = jest.fn(() => {
     expect(state.v * 4).toEqual(state.quadrupleV());
     return state.quadrupleV();
   });
-  autorun(quadrupleVRunner);
+  reactively(quadrupleVRunner);
 
   expect(state.v).toEqual(2);
   expect(state.doubleV()).toEqual(4);
@@ -101,7 +101,7 @@ test("runInAction", () => {
     expect(state.v * 2).toEqual(state.doubleV());
     return state.doubleV(); // calling doubleV
   });
-  autorun(doubleVRunner);
+  reactively(doubleVRunner);
 
   runInAction(() => {
     state.setV(3);

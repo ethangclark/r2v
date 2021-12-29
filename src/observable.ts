@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "./libraryImports";
 import { computedFn } from "../mobx-utils/computedFn";
 import { ObservableBase, ObservableCollection, ValueSetters } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
