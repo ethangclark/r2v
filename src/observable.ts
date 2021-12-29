@@ -1,5 +1,12 @@
-import { makeAutoObservable } from "./libraryImports";
-import { computedFn } from "../mobx-utils/computedFn";
+import { disableWarning } from "./warningUtils";
+
+disableWarning((str) =>
+  str.includes(
+    `invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set`
+  )
+);
+
+import { makeAutoObservable, computedFn } from "./libraryImports";
 import { ObservableBase, ObservableCollection, ValueSetters } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";

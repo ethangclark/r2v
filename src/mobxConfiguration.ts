@@ -26,12 +26,8 @@ configure({
   isolateGlobalState: true,
 });
 
-export function disableWarnings() {
-  configure({
-    computedRequiresReaction: false,
-    observableRequiresReaction: false,
-    reactionRequiresObservable: false,
-  });
+export function enableErrorBoundaries() {
+  configure({ disableErrorBoundaries: false });
 }
 
 export function integrateGlobalState() {

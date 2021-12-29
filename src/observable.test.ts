@@ -1,6 +1,4 @@
-import { observable, runInAction, reactively, disableWarnings } from "./main";
-
-disableWarnings();
+import { observable, runInAction, reactively } from "./main";
 
 test("computed prop", () => {
   const state = observable("computedPropState", {
