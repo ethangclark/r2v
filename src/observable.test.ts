@@ -114,3 +114,22 @@ test("runInAction", () => {
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
 });
+
+test("`this` pattern works", () => {
+  const state = observable("thisPatternObs", {
+    c: 2,
+    doubleC() {
+      return this.c * 2;
+    },
+  });
+  expect(state.doubleC()).toEqual(4);
+});
+test("self-reference pattern works", () => {
+  const state = observable("selfRefPatternObs", {
+    c: 2,
+    doubleC() {
+      return state.c * 2;
+    },
+  });
+  expect(state.doubleC()).toEqual(4);
+});

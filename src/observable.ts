@@ -21,12 +21,13 @@ export function observable<T extends ObservableBase>(
     const { value } =
       Object.getOwnPropertyDescriptor(hasHadSettersAdded, key) || {};
     if (value instanceof Function) {
+      const boundMethod = value.bind(observableBase);
       (hasHadSettersAdded as Record<string, Function>)[key] = computedFn(
         (...args: Array<any>) => {
           const stackSnapshot = [...methodStack];
           const methodSignature = `${observableName}.${key}`;
           methodStack.push(methodSignature);
-          const result = value(...args);
+          const result = boundMethod(...args);
           methodStack.pop();
           logResultantState(
             {
