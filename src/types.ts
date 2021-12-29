@@ -57,9 +57,9 @@ type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 export type ValueSetters<T> = {
   [Key in keyof T as Key extends `set${Caps}${string}`
     ? never
-    : `set${Capitalize<string & Key>}`]: T[Key] extends Function
+    : T[Key] extends Function
     ? never
-    : (value: T[Key]) => void;
+    : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
 };
 
 export type WithFunctionsAsReturns<T> = {
