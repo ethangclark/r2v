@@ -5,10 +5,14 @@ export function reactively<T>(
   postReaction: (value: T, previousValue: T | undefined) => void = () => {},
   runPostRxnImmediately: boolean = true
 ) {
-  const dispose = mobxReaction(reaction, postReaction, {
-    fireImmediately: runPostRxnImmediately,
-  });
-  return () => {
+  const dispose = mobxReaction(
+    reaction,
+    (value, previousValue) => postReaction(value, previousValue),
+    {
+      fireImmediately: runPostRxnImmediately,
+    }
+  );
+  return function stop() {
     dispose();
   };
 }

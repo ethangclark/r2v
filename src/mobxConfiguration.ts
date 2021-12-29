@@ -18,17 +18,12 @@ configure({
   // observableRequiresReaction: true,
   // reactionRequiresObservable: true,
 
-  disableErrorBoundaries:
-    typeof process !== "undefined" && process.env.NODE_ENV !== "production",
+  disableErrorBoundaries: true,
 
   safeDescriptors: true,
 
   isolateGlobalState: true,
 });
-
-export function enableErrorBoundaries() {
-  configure({ disableErrorBoundaries: false });
-}
 
 export function integrateGlobalState() {
   configure({ isolateGlobalState: false });
