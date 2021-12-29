@@ -7,7 +7,7 @@ export type Json =
   | { [key: string]: Json };
 
 export type ObservableBase = {
-  [key: string]: Json | ((...args: any[]) => any);
+  [key: string]: Json | Function; // for some reason making this "Json | (args: any[]) => any" breaks typing in that `const state = observable({ x: 2, x2: () => state.x * 2 })` won't work...
 };
 
 export type AsObservable<T extends ObservableBase> = {
