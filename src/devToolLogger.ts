@@ -44,12 +44,19 @@ function prepForLogging() {
 function initialize(extension: Function) {
   prepForLogging();
   const store = createStore(() => toLog, toLog, extension());
+
+  // time-traveling
   store.subscribe(() => {
-    const state = store?.getState();
-    if (state && state !== toLog) {
+    const state = store.getState();
+
+    // toLog is the most recent state we've returned from the reducer
+    // (unless we're just about to dispatch an action, which shouldn't be the case here)
+    if (state !== toLog) {
       runInAction(() => {
         Object.entries(state).forEach(([observableName, observableBase]) => {
           const obs = observables[observableName];
+          // `obs &&` is to guard against some hypothetical crazy future state where we allow
+          // the merger of a user's redux store and better-mobx's logging redux store
           obs &&
             Object.entries(observableBase as Record<string, Json>).forEach(
               ([fieldName, fieldValue]) => {
