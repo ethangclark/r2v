@@ -7,6 +7,9 @@ const obs1 = observable("obs1", {
 });
 const obs2 = observable("obs2", {
   b: 3,
+  doubleB() {
+    obs2.b = obs2.b * 2;
+  },
 });
 
 autorun(() => {

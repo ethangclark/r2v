@@ -87,3 +87,9 @@ In other words, if you define `get x()` in your observable, `setX()` will also b
 - Think through "boxed" value approach... would we want to support a flow for this?
     - Answer: we can mention it, but don't add an official flow. Make them make what they are doing super explicit (including writing their own setter)
         - value setter magic is plenty
+
+
+PROBLEMS:
+1: JEST is balking at non-thunked methods
+2: typedef for WithSetters is slightly wrong (key should return never if value is func -- not value)
+   ->  TO INVESTIGATE: check out ts-jest, which is used in jest.config.js

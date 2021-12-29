@@ -7,11 +7,13 @@ export type Json =
   | { [key: string]: Json };
 
 export type ObservableBase = {
-  [key: string]: Json | (() => Function);
+  [key: string]: Json | ((...args: any[]) => any);
 };
 
 export type AsObservable<T extends ObservableBase> = {
-  [Key in keyof T]: T[Key] extends Function ? ReturnType<T[Key]> : T[Key];
+  [Key in keyof T]: T[Key] extends (...args: any[]) => any
+    ? ReturnType<T[Key]>
+    : T[Key];
 };
 
 export type Observable = {

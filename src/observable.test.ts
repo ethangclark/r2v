@@ -3,7 +3,7 @@ import { observable, runInAction, autorun } from "./main";
 test("computed prop", () => {
   const state = observable("computedPropState", {
     c: 2,
-    doubleC: () => () => {
+    doubleC() {
       return state.c * 2;
     },
   });
@@ -13,13 +13,13 @@ test("computed prop", () => {
 test("observable + autorun", () => {
   const state = observable("myObs", {
     v: 2,
-    updateV: () => (newValue: number) => {
+    updateV(newValue: number) {
       state.v = newValue;
     },
-    doubleV: () => () => {
+    doubleV() {
       return state.v * 2;
     },
-    quadrupleV: () => () => {
+    quadrupleV() {
       return state.doubleV() * 2;
     },
   });
@@ -64,7 +64,7 @@ test("auto-generated setters", () => {
 test("custom setters are respected", () => {
   const myObs = observable("withCustomSetter", {
     a: 2,
-    setA: () => (v: number) => {
+    setA(v: number) {
       myObs.a = v * 2;
     },
   });
@@ -76,7 +76,7 @@ test("custom setters are respected", () => {
 test("setters are not generated for custom setters", () => {
   const myObs = observable("withCustomSetter2", {
     a: 2,
-    setA: () => (v: number) => {
+    setA(v: number) {
       myObs.a = v * 2;
     },
   });
@@ -88,10 +88,10 @@ test("runInAction", () => {
   let doubleVCalled = 0;
   const state = observable("runInAction test obs", {
     v: 2,
-    updateV: () => (newValue: number) => {
+    updateV(newValue: number) {
       state.v = newValue;
     },
-    doubleV: () => () => {
+    doubleV() {
       doubleVCalled++;
       return state.v * 2;
     },
