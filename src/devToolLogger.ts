@@ -11,6 +11,9 @@ const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};
 
 export function noteObservable(observableName: string, obs: Observable) {
+  if (!loggingExtension) {
+    return;
+  }
   observables[observableName] = obs;
   observablesAsJson[observableName] = JSON.stringify(obs);
 }
