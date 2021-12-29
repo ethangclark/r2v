@@ -24,24 +24,26 @@ let toLog: Record<string, ObservableBase> = {};
 // if any observable's JSON representation has changed, sets toLog = { ...toLog, ...changes }
 // (Redux uses object equality comparison to determine if changes have taken place)
 function prepForLogging() {
-  toLog = { ...toLog };
+  let changed = false;
   Object.entries(observablesAsJson).forEach(
     ([observableName, observableJson]) => {
       if (lastLoggedAsJson[observableName] !== observableJson) {
+        if (!changed) {
+          changed = true;
+          toLog = { ...toLog };
+        }
         toLog[observableName] = JSON.parse(observableJson);
       }
     }
   );
-  lastLoggedAsJson = { ...observablesAsJson };
+  if (changed) {
+    lastLoggedAsJson = { ...observablesAsJson };
+  }
 }
 
-function initialize() {
+function initialize(extension: Function) {
   prepForLogging();
-  const store = createStore(
-    () => toLog,
-    toLog,
-    loggingExtension ? loggingExtension() : null
-  );
+  const store = createStore(() => toLog, toLog, extension());
   store.subscribe(() => {
     const state = store?.getState();
     if (state && state !== toLog) {
@@ -77,7 +79,7 @@ function initializeIdempotent() {
     }
     return null;
   }
-  reduxStore = initialize();
+  reduxStore = initialize(loggingExtension);
   return reduxStore;
 }
 
