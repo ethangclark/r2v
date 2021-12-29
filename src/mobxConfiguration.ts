@@ -4,7 +4,7 @@ const wellIntentionedConfigureErrorMessage =
 // normally we would import this from `libraryImports`,
 // but it needs to be imported *first* to ensure config happens before observables are created
 import { configure } from "mobx";
-import { withWarningsDisabled } from "./withWarningsDisabled";
+import { withWarningsDisabled } from "./warningUtils";
 
 withWarningsDisabled(
   (warning) => warning.includes(wellIntentionedConfigureErrorMessage), // LET IT FAIL :D
@@ -12,6 +12,7 @@ withWarningsDisabled(
     configure({
       enforceActions: "always",
 
+      // // these are broken with the current setup, but would be sweet to use
       // computedRequiresReaction: true,
       // observableRequiresReaction: true,
       // reactionRequiresObservable: true,

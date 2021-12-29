@@ -1,5 +1,7 @@
 const { warn } = console;
 
+// todo: test
+
 export async function withWarningsDisabled(
   isWarningDisabled: (warning: string) => boolean,
   cb: Function
