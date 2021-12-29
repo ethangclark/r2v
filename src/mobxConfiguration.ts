@@ -1,31 +1,30 @@
-const wellIntentionedConfigureErrorMessage =
-  "WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.";
-
 // normally we would import this from `libraryImports`,
 // but it needs to be imported *first* to ensure config happens before observables are created
 import { configure } from "mobx";
-import { withWarningsDisabled } from "./warningUtils";
+import { disableWarning } from "./warningUtils";
 
-withWarningsDisabled(
-  (warning) => warning.includes(wellIntentionedConfigureErrorMessage), // LET IT FAIL :D
-  () => {
-    configure({
-      enforceActions: "always",
+const wellIntentionedConfigureErrorMessage =
+  "WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.";
 
-      // // these are broken with the current setup, but would be sweet to use
-      // computedRequiresReaction: true,
-      // observableRequiresReaction: true,
-      // reactionRequiresObservable: true,
-
-      disableErrorBoundaries:
-        typeof process !== "undefined" && process.env.NODE_ENV !== "production",
-
-      safeDescriptors: true,
-
-      isolateGlobalState: true,
-    });
-  }
+disableWarning(
+  (warning) => warning.includes(wellIntentionedConfigureErrorMessage) // LET IT FAIL :D
 );
+
+configure({
+  enforceActions: "always",
+
+  // // these are broken with the current setup, but would be sweet to use
+  // computedRequiresReaction: true,
+  // observableRequiresReaction: true,
+  // reactionRequiresObservable: true,
+
+  disableErrorBoundaries:
+    typeof process !== "undefined" && process.env.NODE_ENV !== "production",
+
+  safeDescriptors: true,
+
+  isolateGlobalState: true,
+});
 
 export function disableWarnings() {
   configure({

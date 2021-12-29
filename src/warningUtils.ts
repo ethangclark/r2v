@@ -1,18 +1,15 @@
-const { warn } = console;
+// TODO: test
 
-// todo: test
-
-export async function withWarningsDisabled(
-  isWarningDisabled: (warning: string) => boolean,
-  cb: Function
+export function disableWarning(
+  isWarningDisabled: (warning: string) => boolean
 ) {
+  const { warn } = console;
   console.warn = (...args) => {
     for (const arg of args) {
       if (typeof arg === "string" && isWarningDisabled(arg)) {
         return;
       }
     }
+    warn(...args);
   };
-  await cb();
-  console.warn = warn;
 }
