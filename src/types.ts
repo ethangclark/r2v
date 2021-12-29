@@ -17,6 +17,7 @@ export type AsObservable<T extends ObservableBase> = {
 };
 
 export type Observable = {
+  // TODO: use branded type for this
   [key: string]: Json | Function;
 };
 
