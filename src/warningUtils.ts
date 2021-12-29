@@ -1,5 +1,3 @@
-// TODO: test
-
 export function disableWarning(
   isWarningDisabled: (warning: string) => boolean
 ) {
