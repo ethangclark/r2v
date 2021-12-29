@@ -98,7 +98,7 @@ For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-r
 
 ### reactively
 
-#### API: reactively(reaction: () => X, postReaction?: (X, lastX) => void, runPostRxnImmediately? = true): stopListening() {}
+#### API: reactively(reaction: () => X, postReaction?: (X, lastX) => void, runPostRxnImmediately? = true): stop(){}
 
 If you want to "push" values from an observer into something else as they update, you can use `reactively` to do so.
 
@@ -196,3 +196,5 @@ const myStore = observer('myStore', {
 ### try/catch
 
 Do not use `try/catch` with observables. If you have runtime errors in code that reads from `observable`s, any and all of your `observers` may break. Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing the app to work in a partially-broken state.
+
+For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.
