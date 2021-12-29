@@ -34,13 +34,13 @@ function prepForLogging() {
 
 function initialize() {
   prepForLogging();
-  const reduxStore = createStore(
+  const store = createStore(
     () => toLog,
     toLog,
     loggingExtension ? loggingExtension() : null
   );
-  reduxStore.subscribe(() => {
-    const state = reduxStore?.getState();
+  store.subscribe(() => {
+    const state = store?.getState();
     if (state && state !== toLog) {
       runInAction(() => {
         Object.entries(state).forEach(([observableName, observableBase]) => {
@@ -55,7 +55,7 @@ function initialize() {
       });
     }
   });
-  return reduxStore;
+  return store;
 }
 
 let initialized = false;
@@ -82,13 +82,13 @@ export function logResultantState(
   event: ObservableBase & { type: string },
   observables: ObservableCollection
 ) {
-  initializeIdempotent();
-  if (reduxStore) {
+  const store = initializeIdempotent();
+  if (store) {
     Object.entries(observables).forEach(([observableName, obs]) => {
       noteObservable(observableName, obs);
     });
     prepForLogging();
-    reduxStore.dispatch(event);
+    store.dispatch(event);
   }
 }
 
