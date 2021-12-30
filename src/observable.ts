@@ -13,8 +13,6 @@ import { logResultantState, noteObservable } from "./devToolLogger";
 
 const observables: ObservableCollection = {};
 
-const methodStack: string[] = [];
-
 export function observable<T extends ObservableBase>(
   observableName: string,
   observableBase: T
@@ -37,18 +35,19 @@ export function observable<T extends ObservableBase>(
         (hasHadSettersAdded as Record<string, Function>)[key] =
           computedFn(boundMethod);
       } else {
-        const methodSignature = `${observableName}.${key}`;
+        const actionSignature = `${observableName}.${key}`;
         (hasHadSettersAdded as Record<string, Function>)[key] = (
           ...args: Array<any>
         ) => {
-          const stackSnapshot = [...methodStack];
-          methodStack.push(methodSignature);
           const result = boundMethod(...args);
-          methodStack.pop();
           logResultantState(
             {
-              type: methodSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
-              methodStack: stackSnapshot,
+              type: actionSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
+              stack:
+                Error()
+                  .stack?.split("\n")
+                  .slice(1)
+                  .map((line) => line.trim()) || null,
               arg0: args[0],
               args,
             },
