@@ -98,17 +98,13 @@ For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-r
 
 ### reactively
 
-#### API: reactively(reaction: () => X, postReaction?: (X, lastX) => void, runPostRxnImmediately? = true): stop(){}
+#### API: reactively(reaction: () => X, andThen?: (X) => void): function stop(): void
 
 If you want to "push" values from an observer into something else as they update, you can use `reactively` to do so.
 
-Every time any value referenced in `reaction` updates, `reaction` will rerun. If you want to pull values out of your observables without making your function rerun every time there's a change of value, you can do that in `postReaction`. If you are using `postReaction` and your `reaction` returns a value, that value will be passed to `postReaction` so that you don't have to recalculate the value. Finally, if you set `runPostRxnImmediately` to `false`, your `postReaction` won't be called until the _second_ time your `reaction` is called -- that is, after there's been an update from the original values.
+Every time any value referenced in `reaction` updates, `reaction` will rerun. If you want to pull values out of your observables without making your function rerun every time there's a change of value, you can do that in `andThen`. If you are using `andThen` and your `reaction` returns a value, that value will be passed to `andThen` so that you don't have to recalculate the value.
 
 Call `stop()` if you want the reaction to stop occurring.
-
-### toJS
-
-better-mobx transforms all values in observables into proxies so it can tell what observer is reading from what fields on what observable. These should work fine for just about anything, but if you want to transform them back into "normal" JS objects, pass your observable field values to `toJS`, which will do just that.
 
 ## Extended API
 

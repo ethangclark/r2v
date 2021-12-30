@@ -2,16 +2,11 @@ import { reaction as mobxReaction } from "./libraryImports";
 
 export function reactively<T>(
   reaction: () => T,
-  postReaction: (value: T, previousValue: T | undefined) => void = () => {},
-  runPostRxnImmediately: boolean = true
+  andThen: (value: T) => void = () => {}
 ) {
-  const dispose = mobxReaction(
-    reaction,
-    (value, previousValue) => postReaction(value, previousValue),
-    {
-      fireImmediately: runPostRxnImmediately,
-    }
-  );
+  const dispose = mobxReaction(reaction, (value) => andThen(value), {
+    fireImmediately: true,
+  });
   return function stop() {
     dispose();
   };
