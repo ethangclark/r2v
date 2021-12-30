@@ -32,16 +32,30 @@ const state = observable('userState', {
     return this.users.filter(u => !u.deactivated)
   },
 
-  // the result of calls to this method will be cached by `id`, automatically,
+  // the result of calls to this action will be cached by `id`, automatically,
   // updating the same as the above case
   user(id: string | number | whatever) {
     return this.users.find(u => u.id === id) || null
-  }
+  },
 
   async fetchUsers(userIds) {
     const users = await fetch(...)
-    this.setUsers(users) // setters are created automatically
-  }
+
+    // Setters like `setUsers` are created automatically for non-function fields.
+    // State must be modified via synchronous actions; since `await` was called above, the
+    // action is no longer running, so another action (`setUsers`) must be called
+    this.setUsers(users)
+  },
+
+  // this is an `action`
+  setUserName(userId: string | number | whatever, newName: string) {
+    const user = this.users.find(u => u.id === userId)
+    if (user) {
+      user.fullName = newName // mutate the object directly
+    } else {
+      throw Error('no user with that ID is loaded')
+    }
+  },
 
 })
 
@@ -65,7 +79,7 @@ export const UserTable = observer(() => (
 
 `observable`s support "computed state", which is shown by `activeUsers()` above. "Computed state" only recomputes when fields it is derived from update.
 
-It's worth noting that computed state is free to reference state and computed state on other observables, and methods (like `fetchUsers()`) are free to read from and modify state on other observables.
+It's worth noting that computed state is free to reference state and computed state on other observables, and actions (like `fetchUsers()`) are free to read from and modify state on other observables.
 
 #### IMPORTANT
 All observable fields should only be modified via `setters`, which are auto-generated (like `setUsers()` above).
@@ -147,7 +161,7 @@ const MyView = observer(() => (
 
 ### arrow functions
 
-If you want to use `this` in your methods, you can't use arrow functions.
+If you want to use `this` in your actions, you can't use arrow functions.
 
 This won't work:
 
@@ -191,6 +205,6 @@ const myStore = observer('myStore', {
 
 ### try/catch
 
-Do not use `try/catch` with observables. If you have runtime errors in code that reads from `observable`s, any and all of your `observers` may break. Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing the app to work in a partially-broken state.
+Do not use `try/catch` within computed state. Errors here can break `observers` and `reactively`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
 
 For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.

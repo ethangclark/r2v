@@ -13,10 +13,7 @@ disableWarning(
 configure({
   enforceActions: "always", // so we can _easily_ track what happens in redux devtools
 
-  // These would be sweet to use, as they'd prevent the most common mobx stumbling block
-  // (dereferencing outside of observers),
-  // but they don't work with our `observable` construct.
-  // TODO: investigate why.
+  // these restrictions _may_ help with learning, but they make everything else cumbersome
   computedRequiresReaction: false,
   observableRequiresReaction: false,
 
