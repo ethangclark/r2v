@@ -17,9 +17,8 @@ reactively(() => {
   console.log("a/b:", obs1.a, obs2.b);
 });
 
-obs1.setA(123);
-obs1.setA(123);
-obs2.setB(124);
+obs1.a = 123;
+obs2.b = 456;
 
 const state = observable("myObservable", {
   count: 0,
@@ -28,7 +27,7 @@ const MyView1 = observer(() => (
   <div onClick={() => state.count++}>{state.count}</div>
 ));
 const MyView2 = observer(() => (
-  <div onClick={() => state.setCount(state.count + 1)}>{state.count}</div>
+  <div onClick={() => (state.count = state.count + 1)}>{state.count}</div>
 ));
 const MyView3 = observer(() => (
   <div onClick={() => (state.count = Math.random())}>{state.count}</div>
@@ -37,8 +36,8 @@ const MyView3 = observer(() => (
 const MyComponent = observer(() => (
   <div>
     Hello
-    <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
-    <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
+    <div onClick={() => (obs1.a = obs1.a + 1)}>{obs1.a}</div>
+    <div onClick={() => (obs2.b = obs2.b + 2)}>{obs2.b}</div>
     <MyView1 />
     <MyView2 />
     <MyView3 />

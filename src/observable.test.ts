@@ -51,16 +51,6 @@ test("observable + reactively", () => {
   expect(quadrupleVRunner).toHaveReturnedWith(12);
 });
 
-test("auto-generated setters", () => {
-  const myObs = observable("withSettersObs", {
-    a: 2,
-  });
-  expect(myObs.a).toBe(2);
-  expect(typeof myObs.setA).toBe("function");
-  myObs.setA(3);
-  expect(myObs.a).toBe(3);
-});
-
 test("custom setters are respected", () => {
   const myObs = observable("withCustomSetter", {
     a: 2,
@@ -104,9 +94,9 @@ test("runInAction", () => {
   reactively(doubleVRunner);
 
   runInAction(() => {
-    state.setV(3);
-    state.setV(4);
-    state.setV(5);
+    state.v = 3;
+    state.v = 4;
+    state.v = 5;
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action

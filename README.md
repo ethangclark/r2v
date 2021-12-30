@@ -40,7 +40,7 @@ const state = observable('userState', {
 
   async fetchUsers(userIds) {
     const users = await fetch(...)
-    this.setUsers(users) // setters are created automatically
+    this.users = users
   }
 
 })
@@ -67,28 +67,6 @@ export const UserTable = observer(() => (
 
 It's worth noting that computed state is free to reference state and computed state on other observables, and methods (like `fetchUsers()`) are free to read from and modify state on other observables.
 
-#### Mutations
-
-These two components behave the same:
-```tsx
-const state = observable('myObservable', {
-  count: 0
-})
-const MyView = observer(() => (
-  <div onClick={() => state.count++}>{state.count}</div>
-))
-```
-```tsx
-const state = observable('myObservable', {
-  count: 0
-})
-const MyView = observer(() => (
-  <div onClick={() => state.setCount(state.count + 1)}>{state.count}</div>
-))
-```
-
-If you're changing a deeply nested field in an object, it's recommended to mutate that field direclty rather than use its setter. When you use a setter, any observable referencing any part of that object will be updated.
-
 #### IMPORTANT
 You must ONLY pull values out of observables from WITHIN observers for the observers to be able to update when the observables update.
 
@@ -98,7 +76,7 @@ const clickCounts = observable('myObs', {
   clicks: 0
 })
 const ClickCounter = observer(() => (
-  <div onClick={() => myObs.setClicks(myObs.clicks + 1)}>{myObs.clicks}</div>
+  <div onClick={() => (myObs.clicks = myObs.clicks + 1)}>{myObs.clicks}</div>
 ))
 ```
 
@@ -107,10 +85,24 @@ And this will not work:
 const clickCounts = observable('myObs', {
   clicks: 0
 })
-const { clicks, setClicks } = clickCounts
+let { clicks } = clickCounts
 const ClickCounter = observer(() => (
-  <div onClick={() => setClicks(clicks + 1)}>{clicks}</div>
+  <div onClick={() => (clicks = clicks + 1)}>{clicks}</div>
 ))
+```
+
+And neither will this:
+```tsx
+const nestedClickCounts = observable('myObs', {
+  clickCounts: {
+    clicks: 0
+  }
+})
+const { clickCounts } = nestedClickCounts
+const ClickCounter = observer(() => (
+  <div onClick={() => (clickCounter.clicks = clickCounter.clicks + 1)}>{clicks}</div>
+))
+
 ```
 
 For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-reactivity.html)
@@ -129,13 +121,13 @@ Call `stop()` if you want the reaction to stop occurring.
 
 ### runInAction
 
-Every time you call a setter, like `setCount` to update a `count` field, better-mobx triggers a rerender on all fields that use `count`.
+Every time you set a value, like `myObs.count = myObs.count + 1`, better-mobx triggers a rerender on all fields that use `count`.
 
 If you want to wait to rerender until a bunch of actions are complete, wrap them in `runInAction`.
 
-So this will cause 2 renders: `setFirstName('Ethan'); setLastName('Clark');`
+So this will cause 2 renders: `state.firstName = 'Ethan'; state.lastName = 'Clark'`
 
-...and this will only cause one render: `runInAction(() => { setFirstName('Ethan'); setLastName('Clark'); })`
+...and this will only cause one render: `runInAction(() => { state.firstName = 'Ethan'; state.lastName = 'Clark' })`
 
 ### integrateGlobalState
 
@@ -150,15 +142,16 @@ If you don't want a whole object to be tracked for performance reasons, wrap it 
 ```tsx
 const myObs = observable('myObserver', {
 
-  getMyGiantField: () => null,
-
-  // you must define the getter yourself, as setters aren't auto-defined for functions
-  setGetMyGaintField(value) {
+  getMyGiantField: () => { ...someEnormousTypeValue },
+  myGiantField() {
+    return this.getMyGiantFeld()
+  },
+  setMyGaintField(value: SomeEnormousType) {
     this.myGiantField = () => value
   }
 })
 const MyView = observer(() => (
-  <div>{myObs.getMyGiantField().whateverSubfieldYouWant}</div>
+  <div>{myObs.getMyGiantField()?.whateverSubfieldYouWant}</div>
 ))
 ```
 
