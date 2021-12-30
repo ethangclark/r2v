@@ -21,7 +21,7 @@ obs1.a = 123;
 obs2.b = 456;
 
 const state = observable("myObservable", {
-  count: 0,
+  count: 1,
 });
 const MyView1 = observer(() => (
   <div onClick={() => state.count++}>{state.count}</div>
@@ -32,6 +32,11 @@ const MyView2 = observer(() => (
 const MyView3 = observer(() => (
   <div onClick={() => (state.count = Math.random())}>{state.count}</div>
 ));
+const Doubler = observer(() => (
+  <div onClick={() => (state.count = state.count * 2)}>
+    double: {obs2.doubleB()}
+  </div>
+));
 
 const MyComponent = observer(() => (
   <div>
@@ -41,6 +46,7 @@ const MyComponent = observer(() => (
     <MyView1 />
     <MyView2 />
     <MyView3 />
+    <Doubler />
   </div>
 ));
 
