@@ -85,7 +85,7 @@ It's worth noting that computed state is free to reference state and computed st
 
 Functions defined in an observable come in two flavors: Actions, and Computed Values. Computed Values (like `activeUsers` above) are functions that return a value; their results are cached, and so calling a computed value in multiple places will only result in one evaluation (per set of parameters) until relevant values change.
 
-There are 2 important things about Actions: they are what you MUST use to modify state, and they MUST not return a value. Setters are auto-generated-actions. Every time you call an action that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields, and reruns all `reaction`s (explained below) that reference those fields/subfields as well.
+Actions are what you use to update state. They have 3 defining features: they are what you MUST use to modify state, they MUST be synchronous, and they MUST not return a value. Every time you call an action that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields, and reruns all `reaction`s (explained below) that reference those fields/subfields as well.
 
 One important thing to note: actions may call other actions, and no rerender/reaction will occur until the outermost action being executed as completed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`
 
@@ -109,6 +109,10 @@ actionRunner.runInAction(() => {
   someObs.someOtherAction()
 })
 ```
+
+#### Setters
+
+Setters are actions that better-mobx auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
 #### IMPORTANT
 You must ONLY pull values out of observables from WITHIN observers and reactions for the observers and reactions to update when the observables update.
