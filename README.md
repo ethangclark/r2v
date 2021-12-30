@@ -67,8 +67,27 @@ export const UserTable = observer(() => (
 
 It's worth noting that computed state is free to reference state and computed state on other observables, and methods (like `fetchUsers()`) are free to read from and modify state on other observables.
 
-#### IMPORTANT
-All observable fields should only be modified via `setters`, which are auto-generated (like `setUsers()` above).
+#### Mutations
+
+These two components behave the same:
+```tsx
+const state = observable('myObservable', {
+  count: 0
+})
+const MyView = observer(() => (
+  <div onClick={() => state.count++}>{state.count}</div>
+))
+```
+```tsx
+const state = observable('myObservable', {
+  count: 0
+})
+const MyView = observer(() => (
+  <div onClick={() => state.setCount(state.count + 1)}>{state.count}</div>
+))
+```
+
+If you're changing a deeply nested field in an object, it's recommended to mutate that field direclty rather than use its setter. When you use a setter, any observable referencing any part of that object will be updated.
 
 #### IMPORTANT
 You must ONLY pull values out of observables from WITHIN observers for the observers to be able to update when the observables update.

@@ -11,17 +11,28 @@ disableWarning(
 );
 
 configure({
-  enforceActions: "always",
+  // Users can batch operations via `runInAction` but aren't required to,
+  // as performance is rarely a concern.
+  // Better to avoid constraints and allow users to optimized where they've measured it's necessary.
+  enforceActions: "never",
 
-  // // these are broken with the current setup, but would be sweet to use
-  // computedRequiresReaction: true,
-  // observableRequiresReaction: true,
-  // reactionRequiresObservable: true,
+  // These would be sweet to use, as they'd prevent the most common mobx stumbling block
+  // (dereferencing outside of observers),
+  // but they don't work with our `observable` construct,
+  // because there's no way to differentiate between actions and computed values.
+  computedRequiresReaction: false,
+  observableRequiresReaction: false,
 
+  // We're not going to yell at users for unnecessarily wrapping components with `observer`
+  reactionRequiresObservable: false,
+
+  // It is NOT worth sacrificing stack traces for "continuing to work after an error"
   disableErrorBoundaries: true,
 
+  // If a user is using custom property descriptors, probably a good idea to yell at them.
   safeDescriptors: true,
 
+  // Just to be safe. We allow users to disable this via `integrateGlobalState`.
   isolateGlobalState: true,
 });
 
