@@ -1,4 +1,10 @@
-import { observable, runInAction, reactively } from "./main";
+import { observable, reactively } from "./main";
+
+const actionRunner = observable("actionRunner", {
+  runInAction(cb: Function) {
+    cb();
+  },
+});
 
 test("computed prop", () => {
   const state = observable("computedPropState", {
@@ -103,7 +109,7 @@ test("runInAction", () => {
   });
   reactively(doubleVRunner);
 
-  runInAction(() => {
+  actionRunner.runInAction(() => {
     state.setV(3);
     state.setV(4);
     state.setV(5);

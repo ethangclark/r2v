@@ -81,11 +81,37 @@ export const UserTable = observer(() => (
 
 It's worth noting that computed state is free to reference state and computed state on other observables, and actions (like `fetchUsers()`) are free to read from and modify state on other observables.
 
-#### IMPORTANT
-All observable fields should only be modified via `setters`, which are auto-generated (like `setUsers()` above).
+#### Actions
+
+Functions defined in an observable come in two flavors: Actions, and Computed Values. Computed Values (like `activeUsers` above) are functions that return a value; their results are cached, and so calling a computed value in multiple places will only result in one evaluation (per set of parameters) until relevant values change.
+
+There are 2 important things about Actions: they are what you MUST use to modify state, and they MUST not return a value. Setters are auto-generated-actions. Every time you call an action that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields, and reruns all `reaction`s (explained below) that reference those fields/subfields as well.
+
+One important thing to note: actions may call other actions, and no rerender/reaction will occur until the outermost action being executed as completed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`
+
+This action, when called, only causes 1 render, even though it itself calls two other actions: `myObs.setNames(first: string, last: string) { this.setFirstName(first); this.setLastName(last) }`
+
+If you want a generic way to execute several actions together ad-hoc, without having to create higher-level actions, you could create an action runner:
+
+```tsx
+const actionRunner = observable("actionRunner", {
+  runInAction(cb: Function) {
+    cb();
+  },
+});
+```
+
+and use it like so:
+
+```tsx
+actionRunner.runInAction(() => {
+  someObs.someAction()
+  someObs.someOtherAction()
+})
+```
 
 #### IMPORTANT
-You must ONLY pull values out of observables from WITHIN observers for the observers to be able to update when the observables update.
+You must ONLY pull values out of observables from WITHIN observers and reactions for the observers and reactions to update when the observables update.
 
 So this will work:
 ```tsx
@@ -121,16 +147,6 @@ Every time any value referenced in `reaction` updates, `reaction` will rerun. If
 Call `stop()` if you want the reaction to stop occurring.
 
 ## Extended API
-
-### runInAction
-
-Every time you call a setter, like `setCount` to update a `count` field, better-mobx triggers a rerender on all fields that use `count`.
-
-If you want to wait to rerender until a bunch of actions are complete, wrap them in `runInAction`.
-
-So this will cause 2 renders: `setFirstName('Ethan'); setLastName('Clark');`
-
-...and this will only cause one render: `runInAction(() => { setFirstName('Ethan'); setLastName('Clark'); })`
 
 ### integrateGlobalState
 
