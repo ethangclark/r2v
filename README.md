@@ -228,3 +228,7 @@ const myStore = observer('myStore', {
 Do not use `try/catch` within computed state. Errors here can break `observers` and `reactively`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
 
 For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.
+
+### dereferencing `observable` fields outside of `observer`s or `reaction`s
+
+This is mentioned above, but worth repeating: if you pull fields off of an `observable` _outside_ of an `observer` or `reaction`, and then use those fields _inside_ an `observer` or `reaction`, the `observer/reaction` *will not update* when those fields change on the `observable`. You should *only* dereference fields you want to "listen" to *inside* of `observer`s or `reaction`s.
