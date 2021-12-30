@@ -34,27 +34,28 @@ export function observable<T extends ObservableBase>(
       const boundMethod = value.bind(observableBase);
 
       if (isComputed) {
-        (hasHadSettersAdded as Record<string, Function>)[key] = computedFn(
-          (...args: Array<any>) => {
-            const stackSnapshot = [...methodStack];
-            const methodSignature = `${observableName}.${key}`;
-            methodStack.push(methodSignature);
-            const result = boundMethod(...args);
-            methodStack.pop();
-            logResultantState(
-              {
-                type: methodSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
-                methodStack: stackSnapshot,
-                arg0: args[0],
-                args,
-              },
-              observables
-            );
-            return result;
-          }
-        );
+        (hasHadSettersAdded as Record<string, Function>)[key] =
+          computedFn(boundMethod);
       } else {
-        (hasHadSettersAdded as Record<string, Function>)[key] = boundMethod;
+        const methodSignature = `${observableName}.${key}`;
+        (hasHadSettersAdded as Record<string, Function>)[key] = (
+          ...args: Array<any>
+        ) => {
+          const stackSnapshot = [...methodStack];
+          methodStack.push(methodSignature);
+          const result = boundMethod(...args);
+          methodStack.pop();
+          logResultantState(
+            {
+              type: methodSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
+              methodStack: stackSnapshot,
+              arg0: args[0],
+              args,
+            },
+            observables
+          );
+          return result;
+        };
       }
     }
   });
