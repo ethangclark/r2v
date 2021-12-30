@@ -7,8 +7,11 @@ const obs1 = observable("obs1", {
 });
 const obs2 = observable("obs2", {
   b: 3,
+  double() {
+    this.b = this.b * 2;
+  },
   doubleB() {
-    obs2.b = obs2.b * 2;
+    return this.b * 2;
   },
 });
 
@@ -17,14 +20,14 @@ reactively(() => {
 });
 
 obs1.setA(123);
-obs1.setA(123);
-obs2.setB(124);
+obs2.setB(456);
 
 const MyComponent = observer(() => (
   <div>
     Hello
     <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
     <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
+    <div onClick={() => obs2.double()}>double: {obs2.doubleB()}</div>
   </div>
 ));
 

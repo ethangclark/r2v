@@ -61,7 +61,3 @@ export type ValueSetters<T> = {
     ? never
     : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
 };
-
-export type WithFunctionsAsReturns<T> = {
-  [Key in keyof T]: T[Key] extends () => Function ? ReturnType<T[Key]> : T[Key];
-};

@@ -28,26 +28,34 @@ export function observable<T extends ObservableBase>(
     const { value } =
       Object.getOwnPropertyDescriptor(hasHadSettersAdded, key) || {};
     if (value instanceof Function) {
+      const asString = value.toString();
+      const isComputed = asString.includes("return") || !asString.includes("{"); // TODO: refine
+
       const boundMethod = value.bind(observableBase);
-      (hasHadSettersAdded as Record<string, Function>)[key] = computedFn(
-        (...args: Array<any>) => {
-          const stackSnapshot = [...methodStack];
-          const methodSignature = `${observableName}.${key}`;
-          methodStack.push(methodSignature);
-          const result = boundMethod(...args);
-          methodStack.pop();
-          logResultantState(
-            {
-              type: methodSignature,
-              methodStack: stackSnapshot,
-              arg0: args[0],
-              args,
-            },
-            observables
-          );
-          return result;
-        }
-      );
+
+      if (isComputed) {
+        (hasHadSettersAdded as Record<string, Function>)[key] = computedFn(
+          (...args: Array<any>) => {
+            const stackSnapshot = [...methodStack];
+            const methodSignature = `${observableName}.${key}`;
+            methodStack.push(methodSignature);
+            const result = boundMethod(...args);
+            methodStack.pop();
+            logResultantState(
+              {
+                type: methodSignature,
+                methodStack: stackSnapshot,
+                arg0: args[0],
+                args,
+              },
+              observables
+            );
+            return result;
+          }
+        );
+      } else {
+        (hasHadSettersAdded as Record<string, Function>)[key] = boundMethod;
+      }
     }
   });
   const hasBeenMadeObservable = makeAutoObservable(hasHadSettersAdded); // mutates in-place
