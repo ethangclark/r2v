@@ -11,17 +11,25 @@ disableWarning(
 );
 
 configure({
-  enforceActions: "always",
+  enforceActions: "always", // so we can _easily_ track what happens in redux devtools
 
-  // // these are broken with the current setup, but would be sweet to use
-  // computedRequiresReaction: true,
-  // observableRequiresReaction: true,
-  // reactionRequiresObservable: true,
+  // These would be sweet to use, as they'd prevent the most common mobx stumbling block
+  // (dereferencing outside of observers),
+  // but they don't work with our `observable` construct.
+  // TODO: investigate why.
+  computedRequiresReaction: false,
+  observableRequiresReaction: false,
 
+  // We're not going to yell at users for unnecessarily wrapping components with `observer`
+  reactionRequiresObservable: false,
+
+  // It is NOT worth sacrificing stack traces for "continuing to work after an error"
   disableErrorBoundaries: true,
 
+  // If a user is using custom property descriptors, probably a good idea to yell at them.
   safeDescriptors: true,
 
+  // Just to be safe. We allow users to disable this via `integrateGlobalState`.
   isolateGlobalState: true,
 });
 
