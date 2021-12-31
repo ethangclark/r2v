@@ -3,10 +3,11 @@ import {
   runInAction,
   observable as mobxObservable,
 } from "./libraryImports";
-import { ObservableBase, ValueSetters } from "./types";
+import { ObservableBase, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-import { observables } from "./observables";
+
+export const observables: ObservableCollection = {};
 
 const actionStack: string[] = [];
 let actionId = 0;
