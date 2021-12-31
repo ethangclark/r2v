@@ -12,7 +12,7 @@ export function derived<T extends { [key: string]: (...args: any[]) => any }>(
   derivedDef: T
 ): T {
   Object.entries(derivedDef).forEach(([fieldName, derivationFn]) => {
-    (derivedDef as Record<string, Function>)[fieldName] =
+    (derivedDef as Record<string, (...args: any[]) => any>)[fieldName] =
       computedFn(derivationFn);
   });
   return mobxObservable(derivedDef);

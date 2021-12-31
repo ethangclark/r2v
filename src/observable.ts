@@ -3,7 +3,7 @@ import {
   runInAction,
   observable as mobxObservable,
 } from "./libraryImports";
-import { ObservableBase, ValueSetters, ObservableCollection } from "./types";
+import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
 
@@ -12,7 +12,7 @@ export const observables: ObservableCollection = {};
 const actionStack: string[] = [];
 let actionId = 0;
 
-export function observable<T extends ObservableBase>(
+export function observable<T extends ObservableShape>(
   observableName: string,
   observableBase: T
 ): T & ValueSetters<T> {

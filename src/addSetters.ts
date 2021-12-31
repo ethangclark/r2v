@@ -1,18 +1,21 @@
-import { ObservableBase, ValueSetters } from "./types";
+import { ObservableShape, ValueSetters } from "./types";
 
 function fieldNameToSetterName(fieldName: string) {
   return "set" + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1);
 }
-function hasSetterDefined(fieldName: string, observableBase: ObservableBase) {
+function hasSetterDefined(fieldName: string, observableBase: ObservableShape) {
   return fieldNameToSetterName(fieldName) in observableBase;
 }
 function setterNameToFieldName(setterName: string) {
   return setterName[3].toLowerCase() + setterName.slice(4);
 }
-function isSetterWithDefinedField(key: string, observableBase: ObservableBase) {
+function isSetterWithDefinedField(
+  key: string,
+  observableBase: ObservableShape
+) {
   return /^set[A-Z]/.test(key) && setterNameToFieldName(key) in observableBase;
 }
-function shouldDefineSetter(key: string, observableBase: ObservableBase) {
+function shouldDefineSetter(key: string, observableBase: ObservableShape) {
   if (observableBase[key] instanceof Function) {
     return false;
   }
@@ -28,7 +31,7 @@ function shouldDefineSetter(key: string, observableBase: ObservableBase) {
 }
 function shouldDefineErroringSetter(
   key: string,
-  observableBase: ObservableBase
+  observableBase: ObservableShape
 ) {
   const { get, set } =
     Object.getOwnPropertyDescriptor(observableBase, key) || {};

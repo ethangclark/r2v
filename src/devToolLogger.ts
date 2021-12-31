@@ -1,16 +1,11 @@
-import {
-  ObservableBase,
-  Observable,
-  ObservableCollection,
-  Json,
-} from "./types";
+import { ObservableShape, ObservableCollection, Json } from "./types";
 import { runInAction, createStore, Store, Action } from "./libraryImports";
 import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};
 
-export function noteObservable(observableName: string, obs: Observable) {
+export function noteObservable(observableName: string, obs: ObservableShape) {
   if (!loggingExtension) {
     return;
   }
@@ -19,7 +14,7 @@ export function noteObservable(observableName: string, obs: Observable) {
 }
 
 let lastLoggedAsJson: Record<string, string> = {};
-let toLog: Record<string, ObservableBase> = {};
+let toLog: Record<string, ObservableShape> = {};
 
 // if any observable's JSON representation has changed, sets toLog = { ...toLog, ...changes }
 // (Redux uses object equality comparison to determine if changes have taken place)
@@ -41,7 +36,7 @@ function prepForLogging() {
   }
 }
 
-function initialize(extension: Function) {
+function initialize(extension: (...args: any[]) => any) {
   prepForLogging();
   const store = createStore(() => toLog, toLog, extension());
 
@@ -71,7 +66,7 @@ function initialize(extension: Function) {
 }
 
 let initialized = false;
-let reduxStore: Store<Record<string, ObservableBase>, Action<any>> | null =
+let reduxStore: Store<Record<string, ObservableShape>, Action<any>> | null =
   null;
 function initializeIdempotent() {
   if (initialized) {
@@ -91,7 +86,7 @@ function initializeIdempotent() {
 }
 
 export function logResultantState(
-  event: ObservableBase & { type: string },
+  event: ObservableShape & { type: string },
   observables: ObservableCollection
 ) {
   const store = initializeIdempotent();

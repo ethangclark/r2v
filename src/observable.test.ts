@@ -1,7 +1,7 @@
 import { observable, derived, reactively } from "./main";
 
 const actionRunner = observable("actionRunner", {
-  runInAction(cb: Function) {
+  runInAction(cb: (...args: any[]) => any) {
     cb();
   },
 });
@@ -12,11 +12,15 @@ test("computed prop", () => {
     doubleC() {
       return state.c * 2;
     },
+    quadrupleC() {
+      return this.doubleC() * 2;
+    },
   });
   expect(state.doubleC()).toEqual(4);
+  expect(state.quadrupleC()).toEqual(8);
 });
 
-test("observable + reactively", () => {
+test("observable + reactively + computed + computed referencing computed", () => {
   const state = observable("myObs", {
     v: 2,
     updateV(newValue: number) {

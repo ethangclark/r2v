@@ -6,21 +6,17 @@ export type Json =
   | Array<Json>
   | { [key: string]: Json };
 
-export type ObservableBase = {
-  [key: string]: Json | Function; // for some reason making this "Json | (args: any[]) => any" breaks typing in that `const state = observable({ x: 2, x2: () => state.x * 2 })` won't work...
+export type ObservableShape = {
+  [key: string]: Json | Function;
 };
 
-export type AsObservable<T extends ObservableBase> = {
+export type AsObservable<T extends ObservableShape> = {
   [Key in keyof T]: T[Key] extends (...args: any[]) => any
     ? ReturnType<T[Key]>
     : T[Key];
 };
 
-export type Observable = {
-  [key: string]: Json | Function;
-};
-
-export type ObservableCollection = Record<string, Observable>;
+export type ObservableCollection = Record<string, ObservableShape>;
 
 type NonCapsToCaps = {
   a: "A";
@@ -56,7 +52,7 @@ type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 export type ValueSetters<T> = {
   [Key in keyof T as Key extends `set${Caps}${string}`
     ? never
-    : T[Key] extends Function
+    : T[Key] extends (...args: any[]) => any
     ? never
     : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
 };
