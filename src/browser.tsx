@@ -13,6 +13,10 @@ const obs2 = observable("obs2", {
   doubleB() {
     return this.b * 2;
   },
+  quadruple() {
+    this.double();
+    this.double();
+  },
 });
 
 reactively(() => {
@@ -28,6 +32,7 @@ const MyComponent = observer(() => (
     <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
     <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
     <div onClick={() => obs2.double()}>double: {obs2.doubleB()}</div>
+    <div onClick={() => obs2.quadruple()}>quadruple</div>
   </div>
 ));
 

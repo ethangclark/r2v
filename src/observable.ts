@@ -13,6 +13,9 @@ import { logResultantState, noteObservable } from "./devToolLogger";
 
 const observables: ObservableCollection = {};
 
+const actionStack: string[] = [];
+let actionId = 0;
+
 export function observable<T extends ObservableBase>(
   observableName: string,
   observableBase: T
@@ -35,14 +38,18 @@ export function observable<T extends ObservableBase>(
         (hasHadSettersAdded as Record<string, Function>)[key] =
           computedFn(boundMethod);
       } else {
-        const actionSignature = `${observableName}.${key}`;
         (hasHadSettersAdded as Record<string, Function>)[key] = (
           ...args: Array<any>
         ) => {
+          const actionStackSnapshot = [...actionStack];
+          const actionSignature = `${actionId++}: ${observableName}.${key}`;
+          actionStack.push(actionSignature);
           const result = boundMethod(...args);
+          actionStack.pop();
           logResultantState(
             {
               type: actionSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
+              actionStack: actionStackSnapshot,
               stack:
                 Error()
                   .stack?.split("\n")
