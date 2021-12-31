@@ -95,7 +95,7 @@ If you want a generic way to execute several actions together ad-hoc, without ha
 
 ```tsx
 const actionRunner = observable("actionRunner", {
-  runInAction(cb: (...args: any[]) => any) {
+  runInAction(cb: Function) {
     cb();
   },
 });

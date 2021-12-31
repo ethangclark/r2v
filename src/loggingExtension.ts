@@ -1,4 +1,4 @@
-export const loggingExtension: (...args: any[]) => any | null = (() => {
+export const loggingExtension: Function | null = (() => {
   if (typeof window === "undefined") {
     return null;
   }
