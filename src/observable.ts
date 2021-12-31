@@ -48,7 +48,7 @@ export function observable<T extends ObservableBase>(
           actionStack.pop();
           logResultantState(
             {
-              type: actionSignature, // PROBLEM: this is always "doubleB" when testing with "browser.tsx"
+              type: actionSignature,
               actionStack: actionStackSnapshot,
               stack:
                 Error()
