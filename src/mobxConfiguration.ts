@@ -26,10 +26,6 @@ configure({
   // If a user is using custom property descriptors, probably a good idea to yell at them.
   safeDescriptors: true,
 
-  // Just to be safe. We allow users to disable this via `integrateGlobalState`.
+  // We allow users to leverage our version of mobx via `import { mobx } from 'better-mobx' if they wish
   isolateGlobalState: true,
 });
-
-export function integrateGlobalState() {
-  configure({ isolateGlobalState: false });
-}

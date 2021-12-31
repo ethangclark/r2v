@@ -152,9 +152,9 @@ Call `stop()` if you want the reaction to stop occurring.
 
 ## Extended API
 
-### integrateGlobalState
+### mobx
 
-If you want to use MobX with better-mobx, you can call `integrateGlobalState()`, which will allow the two libraries to work together. Caveat: the version of MobX that you're using must match the version of better-mobx for this to work correctly.
+While it is not recommended, if you wish to use better-mobx's version of mobx directly, you may via `import { mobx } from 'better-mobx'`
 
 ## performance tips
 
