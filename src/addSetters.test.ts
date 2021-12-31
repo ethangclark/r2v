@@ -34,7 +34,7 @@ describe("addValueSettersWhereNoExist", () => {
     const o = {
       a: 2,
       get doubleA() {
-        return this.a * 2;
+        return o.a * 2;
       },
     };
     const withSetters = addValueSettersWhereNoExist(o);
@@ -46,10 +46,10 @@ describe("addValueSettersWhereNoExist", () => {
     const o = {
       a: 2,
       get doubleA() {
-        return this.a * 2;
+        return o.a * 2;
       },
       setDoubleA(v: number) {
-        this.a = v / 2;
+        o.a = v / 2;
       },
     };
     const withSetters = addValueSettersWhereNoExist(o);

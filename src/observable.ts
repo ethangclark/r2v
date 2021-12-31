@@ -31,7 +31,6 @@ export function observable<T extends ObservableShape>(
     }
     annotations[key] = mobxObservable;
     if (value instanceof Function) {
-      const boundActionImpl = value.bind(hasHadSettersAdded);
       // TODO: revisit these casts
       (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
         let result;
@@ -39,7 +38,7 @@ export function observable<T extends ObservableShape>(
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          result = boundActionImpl(...args);
+          result = value(...args);
           actionStack.pop();
           logResultantState(
             {

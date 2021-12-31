@@ -9,11 +9,11 @@ const obs1 = observable("obs1", {
 const obs2 = observable("obs2", {
   b: 3,
   double() {
-    this.b = this.b * 2;
+    obs2.b = obs2.b * 2;
   },
   quadruple() {
-    this.double();
-    this.double();
+    obs2.double();
+    obs2.double();
   },
 });
 const obs2d = derived({

@@ -26,16 +26,16 @@ const state = observable('userState', {
   users: [] as Array<User>,
 
   // better-mobx stores the result of this after it's called once,
-  // and only ever recomputes it if `this.users` changes,
+  // and only ever recomputes it if `state.users` changes,
   // which makes it very efficient
   activeUsers() {
-    return this.users.filter(u => !u.deactivated)
+    return state.users.filter(u => !u.deactivated)
   },
 
   // the result of calls to this action will be cached by `id`, automatically,
   // updating the same as the above case
   user(id: string | number | whatever) {
-    return this.users.find(u => u.id === id) || null
+    return state.users.find(u => u.id === id) || null
   },
 
   async fetchUsers(userIds) {
@@ -44,12 +44,12 @@ const state = observable('userState', {
     // Setters like `setUsers` are created automatically for non-function fields.
     // State must be modified via synchronous actions; since `await` was called above, the
     // action is no longer running, so another action (`setUsers`) must be called
-    this.setUsers(users)
+    state.setUsers(users)
   },
 
   // this is an `action`
   setUserName(userId: string | number | whatever, newName: string) {
-    const user = this.users.find(u => u.id === userId)
+    const user = state.users.find(u => u.id === userId)
     if (user) {
       user.fullName = newName // mutate the object directly
     } else {
@@ -89,7 +89,7 @@ Actions are what you use to update state. They have 3 defining features: they ar
 
 One important thing to note: actions may call other actions, and no rerender/reaction will occur until the outermost action being executed as completed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`
 
-This action, when called, only causes 1 render, even though it itself calls two other actions: `myObs.setNames(first: string, last: string) { this.setFirstName(first); this.setLastName(last) }`
+This action, when called, only causes 1 render, even though it itself calls two other actions: `myObs.setNames(first: string, last: string) { state.setFirstName(first); state.setLastName(last) }`
 
 If you want a generic way to execute several actions together ad-hoc, without having to create higher-level actions, you could create an action runner:
 
@@ -169,7 +169,7 @@ const myObs = observable('myObserver', {
 
   // you must define the getter yourself, as setters aren't auto-defined for functions
   setGetMyGaintField(value) {
-    this.myGiantField = () => value
+    myObs.myGiantField = () => value
   }
 })
 const MyView = observer(() => (
@@ -188,7 +188,7 @@ This won't work:
 ```tsx
 const myStore = observer('myStore', {
   a: 2,
-  incrementA: () => this.a++
+  incrementA: () => myStore.a++
 })
 ```
 
@@ -198,7 +198,7 @@ This will work:
 const myStore = observer('myStore', {
   a: 2,
   incrementA() {
-    this.a++
+    myStore.a++
   }
 })
 ```
