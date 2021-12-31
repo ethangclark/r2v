@@ -146,18 +146,27 @@ test("self-reference pattern works", () => {
   expect(state.doubleC()).toEqual(4);
 });
 
-// TODO: investigate if this pattern only fails in jest
-test.skip("box", () => {
+test("box pattern", () => {
+  // // inherently broken
+  // const state = observable("boxState", {
+  //   _z: (() => 123) as () => number,
+  //   get z() {
+  //     return state._z();
+  //   },
+  //   set z(v: number) {
+  //     state._z = () => v;
+  //   },
+  // });
   const state = observable("boxState", {
     _z: (() => 123) as () => number,
-    get z() {
+    z() {
       return state._z();
     },
-    set z(v: number) {
+    setZ(v: number) {
       state._z = () => v;
     },
   });
-  expect(state.z).toEqual(123);
+  expect(state.z()).toEqual(123);
   state.setZ(321);
-  expect(state.z).toEqual(321);
+  expect(state.z()).toEqual(321);
 });
