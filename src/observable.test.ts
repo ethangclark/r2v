@@ -1,7 +1,7 @@
 import { observable, derived, reactively } from "./main";
 
 const actionRunner = observable("actionRunner", {
-  runInAction(cb: Function) {
+  runInAction(cb: (...args: any[]) => any) {
     cb();
   },
 });

@@ -36,7 +36,7 @@ function prepForLogging() {
   }
 }
 
-function initialize(extension: Function) {
+function initialize(extension: (...args: any[]) => any) {
   prepForLogging();
   const store = createStore(() => toLog, toLog, extension());
 

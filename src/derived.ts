@@ -8,11 +8,11 @@ disableWarning((str) =>
 
 import { computedFn, observable as mobxObservable } from "./libraryImports";
 
-export function derived<T extends { [key: string]: (...args: any[]) => any }>( // using (...args: any[]) => any instead of Function due to mobx's signature
+export function derived<T extends { [key: string]: (...args: any[]) => any }>(
   derivedDef: T
 ): T {
   Object.entries(derivedDef).forEach(([fieldName, derivationFn]) => {
-    (derivedDef as Record<string, Function>)[fieldName] =
+    (derivedDef as Record<string, (...args: any[]) => any>)[fieldName] =
       computedFn(derivationFn);
   });
   return mobxObservable(derivedDef);
