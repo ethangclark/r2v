@@ -1,17 +1,12 @@
-import { disableWarning } from "./warningUtils";
-
-disableWarning((str) =>
-  str.includes(
-    `invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set`
-  )
-);
-
-import { makeAutoObservable, computedFn } from "./libraryImports";
-import { ObservableBase, ObservableCollection, ValueSetters } from "./types";
+import {
+  makeObservable,
+  runInAction,
+  observable as mobxObservable,
+} from "./libraryImports";
+import { ObservableBase, ValueSetters } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-
-const observables: ObservableCollection = {};
+import { observables } from "./observables";
 
 const actionStack: string[] = [];
 let actionId = 0;
@@ -25,26 +20,24 @@ export function observable<T extends ObservableBase>(
   }
 
   const hasHadSettersAdded = addValueSettersWhereNoExist(observableBase); // mutates in-place
+  const annotations: Record<string, any> = {};
+
   Object.keys(hasHadSettersAdded).forEach((key) => {
     const { value } =
       Object.getOwnPropertyDescriptor(hasHadSettersAdded, key) || {};
+    if (value === undefined) {
+      return;
+    }
+    annotations[key] = mobxObservable;
     if (value instanceof Function) {
-      const asString = value.toString();
-      const isComputed = asString.includes("return") || !asString.includes("{"); // TODO: refine
-
-      const boundMethod = value.bind(observableBase);
-
-      if (isComputed) {
-        (hasHadSettersAdded as Record<string, Function>)[key] =
-          computedFn(boundMethod);
-      } else {
-        (hasHadSettersAdded as Record<string, Function>)[key] = (
-          ...args: Array<any>
-        ) => {
+      const boundActionImpl = value.bind(hasHadSettersAdded);
+      (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
+        let result;
+        runInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          const result = boundMethod(...args);
+          result = boundActionImpl(...args);
           actionStack.pop();
           logResultantState(
             {
@@ -60,12 +53,13 @@ export function observable<T extends ObservableBase>(
             },
             observables
           );
-          return result;
-        };
-      }
+        });
+        return result;
+      };
     }
   });
-  const hasBeenMadeObservable = makeAutoObservable(hasHadSettersAdded); // mutates in-place
+
+  const hasBeenMadeObservable = makeObservable(hasHadSettersAdded, annotations); // mutates in-place
   observables[observableName] = hasBeenMadeObservable;
   noteObservable(observableName, hasBeenMadeObservable);
   return hasBeenMadeObservable;

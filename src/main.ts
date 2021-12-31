@@ -3,4 +3,5 @@ import "./mobxConfiguration";
 
 export { mobx, observer } from "./libraryImports";
 export { observable } from "./observable";
+export { derived } from "./derived";
 export { reactively } from "./reactively";

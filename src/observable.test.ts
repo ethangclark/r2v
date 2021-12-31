@@ -1,4 +1,4 @@
-import { observable, reactively } from "./main";
+import { observable, derived, reactively } from "./main";
 
 const actionRunner = observable("actionRunner", {
   runInAction(cb: Function) {
@@ -97,6 +97,8 @@ test("runInAction", () => {
     updateV(newValue: number) {
       state.v = newValue;
     },
+  });
+  const dState = derived("runInAction derived sttate", {
     doubleV() {
       doubleVCalled++;
       return state.v * 2;
@@ -104,8 +106,8 @@ test("runInAction", () => {
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV());
-    return state.doubleV(); // calling doubleV
+    expect(state.v * 2).toEqual(dState.doubleV());
+    return dState.doubleV(); // calling doubleV
   });
   reactively(doubleVRunner);
 
@@ -116,7 +118,7 @@ test("runInAction", () => {
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
-  expect(state.doubleV()).toEqual(10);
+  expect(dState.doubleV()).toEqual(10);
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
 });
@@ -138,4 +140,19 @@ test("self-reference pattern works", () => {
     },
   });
   expect(state.doubleC()).toEqual(4);
+});
+
+test("box", () => {
+  const state = observable("boxState", {
+    _z: (() => 123) as () => number,
+    get z() {
+      return this._z();
+    },
+    set z(v: number) {
+      this._z = () => v;
+    },
+  });
+  expect(state.z).toEqual(123);
+  state.setZ(321);
+  expect(state.z).toEqual(321);
 });

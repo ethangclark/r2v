@@ -1,6 +1,7 @@
 import React from "react";
 import { observable, reactively, observer } from "./main";
 import { render } from "react-dom";
+import { derived } from "./derived";
 
 const obs1 = observable("obs1", {
   a: 2,
@@ -10,12 +11,14 @@ const obs2 = observable("obs2", {
   double() {
     this.b = this.b * 2;
   },
-  doubleB() {
-    return this.b * 2;
-  },
   quadruple() {
     this.double();
     this.double();
+  },
+});
+const obs2d = derived("obs2d", {
+  doubleB() {
+    return obs2.b * 2;
   },
 });
 
@@ -31,7 +34,7 @@ const MyComponent = observer(() => (
     Hello
     <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
     <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
-    <div onClick={() => obs2.double()}>double: {obs2.doubleB()}</div>
+    <div onClick={() => obs2.double()}>double: {obs2d.doubleB()}</div>
     <div onClick={() => obs2.quadruple()}>quadruple</div>
   </div>
 ));
