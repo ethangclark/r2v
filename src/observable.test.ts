@@ -1,4 +1,4 @@
-import { observable, memoized, reactively } from "./main";
+import { observable, derived, reactively } from "./main";
 
 const actionRunner = observable("actionRunner", {
   runInAction(cb: Function) {
@@ -98,7 +98,7 @@ test("runInAction", () => {
       state.v = newValue;
     },
   });
-  const dState = memoized("runInAction derived sttate", {
+  const dState = derived({
     doubleV() {
       doubleVCalled++;
       return state.v * 2;

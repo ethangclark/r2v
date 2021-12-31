@@ -32,6 +32,7 @@ export function observable<T extends ObservableBase>(
     annotations[key] = mobxObservable;
     if (value instanceof Function) {
       const boundActionImpl = value.bind(hasHadSettersAdded);
+      // TODO: revisit these casts
       (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
         let result;
         runInAction(() => {

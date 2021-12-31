@@ -1,7 +1,7 @@
 import React from "react";
 import { observable, reactively, observer } from "./main";
 import { render } from "react-dom";
-import { memoized } from "./memoized";
+import { derived } from "./derived";
 
 const obs1 = observable("obs1", {
   a: 2,
@@ -16,7 +16,7 @@ const obs2 = observable("obs2", {
     this.double();
   },
 });
-const obs2d = memoized("obs2d", {
+const obs2d = derived({
   doubleB() {
     return obs2.b * 2;
   },
