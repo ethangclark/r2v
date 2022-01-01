@@ -56,5 +56,3 @@ export type ValueSetters<T> = {
     ? never
     : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
 };
-
-// TODO: do not define if something else is already set (and document)
