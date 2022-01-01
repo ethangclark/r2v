@@ -1,8 +1,8 @@
 import {
-  makeObservable,
-  runInAction,
-  observable as mobxObservable,
-} from "./libraryImports";
+  mobxMakeObservable,
+  mobxRunInAction,
+  mobxObservable,
+} from "./mobxImports";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
@@ -34,7 +34,7 @@ export function observable<T extends ObservableShape>(
       // TODO: revisit these casts
       (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
         let result;
-        runInAction(() => {
+        mobxRunInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
@@ -60,7 +60,10 @@ export function observable<T extends ObservableShape>(
     }
   });
 
-  const hasBeenMadeObservable = makeObservable(hasHadSettersAdded, annotations); // mutates in-place
+  const hasBeenMadeObservable = mobxMakeObservable(
+    hasHadSettersAdded,
+    annotations
+  ); // mutates in-place
   observables[observableName] = hasBeenMadeObservable;
   noteObservable(observableName, hasBeenMadeObservable);
   return hasBeenMadeObservable;

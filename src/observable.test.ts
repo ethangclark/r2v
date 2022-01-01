@@ -1,4 +1,4 @@
-import { observable, derived, reactively } from "./main";
+import { observable, derived, reaction } from "./main";
 
 const actionRunner = observable("actionRunner", {
   runInAction(cb: (...args: any[]) => any) {
@@ -20,7 +20,7 @@ test("computed prop", () => {
   expect(state.quadrupleC()).toEqual(8);
 });
 
-test("observable + reactively + computed + computed referencing computed", () => {
+test("observable + reaction + computed + computed referencing computed", () => {
   const state = observable("myObs", {
     v: 2,
     updateV(newValue: number) {
@@ -38,13 +38,17 @@ test("observable + reactively + computed + computed referencing computed", () =>
     expect(state.v * 2).toEqual(state.doubleV());
     return state.doubleV();
   });
-  reactively(doubleVRunner);
+  reaction(() => {
+    doubleVRunner();
+  });
 
   const quadrupleVRunner = jest.fn(() => {
     expect(state.v * 4).toEqual(state.quadrupleV());
     return state.quadrupleV();
   });
-  reactively(quadrupleVRunner);
+  reaction(() => {
+    quadrupleVRunner();
+  });
 
   expect(state.v).toEqual(2);
   expect(state.doubleV()).toEqual(4);
@@ -113,7 +117,9 @@ test("runInAction", () => {
     expect(state.v * 2).toEqual(dState.doubleV());
     return dState.doubleV(); // calling doubleV
   });
-  reactively(doubleVRunner);
+  reaction(() => {
+    doubleVRunner();
+  });
 
   actionRunner.runInAction(() => {
     state.setV(3);

@@ -154,15 +154,15 @@ It's worth noting that derived state is free to reference state and derived stat
 
 #### IMPORTANT
 
-Do not use `try/catch` within derived state. Errors here can break `observers` and `reactively`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
+Do not use `try/catch` within derived state. Errors here can break `observers` and `reaction`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
 
 For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.
 
-### reactively
+### reaction
 
-#### API: reactively(reaction: () => X, andThen?: (X) => void): function stop(): void
+#### API: reaction(def: () => void | (() => void)): function stop(): void
 
-If you want to "push" values from an observer into something else as they update, you can use `reactively` to do so.
+If you want to "push" values from an observer into something else as they update, you can use `reaction` to do so.
 
 Every time any value referenced in `reaction` updates, `reaction` will rerun. If you want to pull values out of your observables without making your reaction rerun every time there's a change of value, you can do that in `andThen`. If you are using `andThen` and your `reaction` returns a value, that value will be passed to `andThen` so that you don't have to recalculate the value.
 

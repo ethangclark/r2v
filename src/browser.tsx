@@ -1,5 +1,5 @@
 import React from "react";
-import { observable, reactively, observer } from "./main";
+import { observable, reaction, observer } from "./main";
 import { render } from "react-dom";
 import { derived } from "./derived";
 
@@ -22,7 +22,7 @@ const obs2d = derived({
   },
 });
 
-reactively(() => {
+reaction(() => {
   console.log("a/b:", obs1.a, obs2.b);
 });
 

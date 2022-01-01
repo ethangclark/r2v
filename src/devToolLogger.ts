@@ -1,5 +1,5 @@
+export { createStore, Store, Action } from "redux";
 import { ObservableShape, ObservableCollection, Json } from "./types";
-import { runInAction, createStore, Store, Action } from "./libraryImports";
 import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};

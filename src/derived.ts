@@ -6,14 +6,14 @@ disableWarning((str) =>
   )
 );
 
-import { computedFn, observable as mobxObservable } from "./libraryImports";
+import { mobxUtilsComputedFn, mobxObservable } from "./mobxImports";
 
 export function derived<T extends { [key: string]: (...args: any[]) => any }>(
   derivedDef: T
 ): T {
   Object.entries(derivedDef).forEach(([fieldName, derivationFn]) => {
     (derivedDef as Record<string, (...args: any[]) => any>)[fieldName] =
-      computedFn(derivationFn);
+      mobxUtilsComputedFn(derivationFn);
   });
   return mobxObservable(derivedDef);
 }
