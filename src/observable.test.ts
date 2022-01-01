@@ -6,63 +6,65 @@ const actionRunner = observable("actionRunner", {
   },
 });
 
-test("computed prop", () => {
-  const state = observable("computedPropState", {
+test("derived values", () => {
+  const state = observable("derivedPropState", {
     c: 2,
-    doubleC() {
-      return state.c * 2;
-    },
-    quadrupleC() {
-      return state.doubleC() * 2;
-    },
   });
-  expect(state.doubleC()).toEqual(4);
-  expect(state.quadrupleC()).toEqual(8);
+  const doubleC = derived(() => state.c * 2);
+  const quadrupleC = derived(() => doubleC() * 2);
+  expect(doubleC()).toEqual(4);
+  expect(quadrupleC()).toEqual(8);
 });
 
-test("observable + reaction + computed + computed referencing computed", () => {
+test("observable + reaction + derived + derived referencing derived", () => {
   const state = observable("myObs", {
     v: 2,
     updateV(newValue: number) {
       state.v = newValue;
     },
-    doubleV() {
-      return state.v * 2;
-    },
-    quadrupleV() {
-      return state.doubleV() * 2;
-    },
+  });
+  let doubleVCalculated = 0;
+  const doubleV = derived(() => {
+    doubleVCalculated++;
+    return state.v * 2;
+  });
+  let quadrupleVCalculated = 0;
+  const quadrupleV = derived(() => {
+    quadrupleVCalculated++;
+    return doubleV() * 2;
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV());
-    return state.doubleV();
+    expect(state.v * 2).toEqual(doubleV());
+    return doubleV();
   });
   reaction(() => {
     doubleVRunner();
   });
 
   const quadrupleVRunner = jest.fn(() => {
-    expect(state.v * 4).toEqual(state.quadrupleV());
-    return state.quadrupleV();
+    expect(state.v * 4).toEqual(quadrupleV());
+    return quadrupleV();
   });
   reaction(() => {
     quadrupleVRunner();
   });
 
   expect(state.v).toEqual(2);
-  expect(state.doubleV()).toEqual(4);
+  expect(doubleV()).toEqual(4);
   state.updateV(3);
   expect(state.v).toEqual(3);
-  expect(state.doubleV()).toEqual(6);
+  expect(doubleV()).toEqual(6);
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2);
   expect(doubleVRunner).toHaveReturnedWith(4);
   expect(doubleVRunner).toHaveReturnedWith(6);
+  expect(doubleVCalculated).toEqual(2);
 
   expect(quadrupleVRunner).toHaveBeenCalledTimes(2);
   expect(quadrupleVRunner).toHaveReturnedWith(8);
   expect(quadrupleVRunner).toHaveReturnedWith(12);
+  expect(quadrupleVCalculated).toEqual(2);
 });
 
 test("auto-generated setters", () => {

@@ -51,7 +51,7 @@ export function addValueSettersWhereNoExist<T extends {}>(
     if (shouldDefineErroringSetter(key, obj)) {
       asRecord[setterName] = function () {
         throw Error(
-          `can't set value for computed property "${key}" using auto-generated setter`
+          `property "${key}" has a "get" function defined but no "set" function, so we have no way of setting the value using auto-generated setter`
         );
       };
     } else {
