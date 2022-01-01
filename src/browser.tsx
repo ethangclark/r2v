@@ -16,10 +16,8 @@ const obs2 = observable("obs2", {
     obs2.double();
   },
 });
-const obs2d = derived({
-  doubleB() {
-    return obs2.b * 2;
-  },
+const doubleB = derived(() => {
+  return obs2.b * 2;
 });
 
 reaction(() => {
@@ -34,7 +32,7 @@ const MyComponent = observer(() => (
     Hello
     <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
     <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
-    <div onClick={() => obs2.double()}>double: {obs2d.doubleB()}</div>
+    <div onClick={() => obs2.double()}>double: {doubleB()}</div>
     <div onClick={() => obs2.quadruple()}>quadruple</div>
   </div>
 ));

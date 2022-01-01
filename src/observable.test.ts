@@ -106,16 +106,14 @@ test("runInAction", () => {
       state.v = newValue;
     },
   });
-  const dState = derived({
-    doubleV() {
-      doubleVCalled++;
-      return state.v * 2;
-    },
+  const doubleV = derived(() => {
+    doubleVCalled++;
+    return state.v * 2;
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(dState.doubleV());
-    return dState.doubleV(); // calling doubleV
+    expect(state.v * 2).toEqual(doubleV());
+    return doubleV(); // calling doubleV
   });
   reaction(() => {
     doubleVRunner();
@@ -128,7 +126,7 @@ test("runInAction", () => {
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
-  expect(dState.doubleV()).toEqual(10);
+  expect(doubleV()).toEqual(10);
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
 });

@@ -1,4 +1,4 @@
-// must be first so that configuration logic it contains executes first
+// import first so configuration logic executes first
 import "./mobxConfiguration";
 
 export { observer } from "./observer";

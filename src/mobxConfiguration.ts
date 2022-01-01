@@ -1,5 +1,3 @@
-// normally we would import this from `libraryImports`,
-// but it needs to be imported *first* to ensure config happens before observables are created
 import { configure } from "mobx";
 import { disableWarning } from "./warningUtils";
 
