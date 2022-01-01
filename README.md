@@ -160,40 +160,21 @@ For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.
 
 ### reaction
 
-#### API: reaction(def: () => void | (() => void)): function stop(): void
+#### API: reaction(def: () => (void | (nonReactiveFollowup: () => void))): function stop(): void
 
 If you want to "push" values from an observer into something else as they update, you can use `reaction` to do so.
 
-Every time any value referenced in `reaction` updates, `reaction` will rerun. If you want to pull values out of your observables without making your reaction rerun every time there's a change of value, you can do that in `andThen`. If you are using `andThen` and your `reaction` returns a value, that value will be passed to `andThen` so that you don't have to recalculate the value.
+Every time any value referenced in a `reaction` updates, `reaction` will rerun.
 
-Call `stop()` if you want the reaction to stop running.
+Your `reaction` definition may return a function, if you wish. This function will be called immediatley after the `reaction` completes, and any `observable` values referenced by this function will not trigger `reaction` re-runs when they change.
+
+Creating a `reaction` returns a `stop()` function, which can be called to stop the reaction from running.
 
 ## Extended API
 
 ### mobx
 
 While it is not recommended, if you wish to use better-mobx's version of mobx directly, you may via `import { mobx } from 'better-mobx'`
-
-## performance tips
-
-better-mobx transforms all of your objects into proxies to allow it to track which observers are listening to which observables. This can be expensive with massive objects.
-
-If you don't want a whole object to be tracked for performance reasons, wrap it in a function, like so:
-
-```tsx
-const myObs = observable('myObserver', {
-
-  getMyGiantField: () => null,
-
-  // you must define the getter yourself, as setters aren't auto-defined for functions
-  setGetMyGaintField(value) {
-    myObs.getMyGiantField = () => value
-  }
-})
-const MyView = observer(() => (
-  <div>{myObs.getMyGiantField().whateverSubfieldYouWant}</div>
-))
-```
 
 ## gotchas
 
