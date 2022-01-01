@@ -6,14 +6,17 @@ disableWarning((str) =>
   )
 );
 
-import { mobxUtilsComputedFn, mobxObservable } from "./mobxImports";
+import * as mobxUtils from "mobx-utils";
+import * as mobx from "mobx";
+
+// TODO: make this a singular function
 
 export function derived<T extends { [key: string]: (...args: any[]) => any }>(
   derivedDef: T
 ): T {
   Object.entries(derivedDef).forEach(([fieldName, derivationFn]) => {
     (derivedDef as Record<string, (...args: any[]) => any>)[fieldName] =
-      mobxUtilsComputedFn(derivationFn);
+      mobxUtils.computedFn(derivationFn);
   });
-  return mobxObservable(derivedDef);
+  return mobx.observable(derivedDef);
 }

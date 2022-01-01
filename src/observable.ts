@@ -1,8 +1,4 @@
-import {
-  mobxMakeObservable,
-  mobxRunInAction,
-  mobxObservable,
-} from "./mobxImports";
+import * as mobx from "mobx";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
@@ -29,12 +25,12 @@ export function observable<T extends ObservableShape>(
     if (value === undefined) {
       return;
     }
-    annotations[key] = mobxObservable;
+    annotations[key] = mobx.observable;
     if (value instanceof Function) {
       // TODO: revisit these casts
       (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
         let result;
-        mobxRunInAction(() => {
+        mobx.runInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
@@ -60,7 +56,7 @@ export function observable<T extends ObservableShape>(
     }
   });
 
-  const hasBeenMadeObservable = mobxMakeObservable(
+  const hasBeenMadeObservable = mobx.makeObservable(
     hasHadSettersAdded,
     annotations
   ); // mutates in-place

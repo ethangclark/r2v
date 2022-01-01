@@ -1,8 +1,8 @@
-import { mobxReaction } from "./mobxImports";
+import * as mobx from "mobx";
 
 export function reaction(def: () => (() => void) | void) {
   let andThen = () => {};
-  const dispose = mobxReaction(
+  const dispose = mobx.reaction(
     () => {
       andThen = def() || (() => {});
     },
