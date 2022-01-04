@@ -1,6 +1,6 @@
 import { createStore, Store, Action } from "redux";
 import * as mobx from "mobx";
-import { ObservableShape, ObservableCollection, Json } from "./types";
+import { ObservableShape, ObservableCollection } from "./types";
 import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};
@@ -54,7 +54,7 @@ function initialize(extension: (...args: any[]) => any) {
           // `obs &&` is to guard against some hypothetical crazy future state where we allow
           // the merger of a user's redux store and better-mobx's logging redux store
           obs &&
-            Object.entries(observableBase as Record<string, Json>).forEach(
+            Object.entries(observableBase).forEach(
               ([fieldName, fieldValue]) => {
                 obs[fieldName] = fieldValue;
               }
@@ -76,7 +76,7 @@ function initializeIdempotent() {
   initialized = true;
   if (!loggingExtension) {
     if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
-      console.error(
+      console.warn(
         "install Redux DevTools (Google it) to see application state"
       );
     }

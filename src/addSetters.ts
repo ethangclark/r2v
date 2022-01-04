@@ -1,3 +1,4 @@
+import { asRecord } from "./asRecord";
 import { ObservableShape, ValueSetters } from "./types";
 
 function fieldNameToSetterName(fieldName: string) {
@@ -39,7 +40,7 @@ function shouldDefineErroringSetter(
 }
 
 // mutates in-place
-export function addValueSettersWhereNoExist<T extends {}>(
+export function addValueSettersWhereNoExist<T extends ObservableShape>(
   obj: T
 ): T & ValueSetters<T> {
   Object.keys(obj).forEach((key) => {
@@ -47,16 +48,15 @@ export function addValueSettersWhereNoExist<T extends {}>(
       return;
     }
     const setterName = fieldNameToSetterName(key);
-    const asRecord = obj as Record<string, any>;
     if (shouldDefineErroringSetter(key, obj)) {
-      asRecord[setterName] = function () {
+      asRecord(obj)[setterName] = function () {
         throw Error(
           `property "${key}" has a "get" function defined but no "set" function, so we have no way of setting the value using auto-generated setter`
         );
       };
     } else {
-      asRecord[setterName] = function (value: any) {
-        asRecord[key] = value;
+      asRecord(obj)[setterName] = function (value: any) {
+        asRecord(obj)[key] = value;
       };
     }
   });

@@ -2,6 +2,7 @@ import * as mobx from "mobx";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
+import { asRecord } from "./asRecord";
 
 export const observables: ObservableCollection = {};
 
@@ -27,8 +28,7 @@ export function observable<T extends ObservableShape>(
     }
     annotations[key] = mobx.observable;
     if (value instanceof Function) {
-      // TODO: revisit these casts
-      (hasHadSettersAdded as Record<string, any>)[key] = (...args: any[]) => {
+      asRecord(hasHadSettersAdded)[key] = (...args: any[]) => {
         let result;
         mobx.runInAction(() => {
           const actionStackSnapshot = [...actionStack];
