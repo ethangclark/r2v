@@ -1,3 +1,11 @@
+import { disableWarning } from "./warningUtils";
+
+disableWarning((str) =>
+  str.includes(
+    `invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set`
+  )
+);
+
 import * as mobx from "mobx";
 import * as mobxUtils from "mobx-utils";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
@@ -36,7 +44,7 @@ export function observable<T extends ObservableShape>(
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          result = value(...args);
+          result = asComputedFn(...args);
           actionStack.pop();
           logResultantState(
             {

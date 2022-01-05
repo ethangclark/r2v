@@ -1,21 +1,9 @@
-import { observable, derived, reaction } from "./main";
+import { observable, reaction } from "./main";
 
 const actionRunner = observable("actionRunner", {
   runInAction(cb: (...args: any[]) => any) {
     cb();
   },
-});
-
-test("inline derived values", () => {
-  const state = observable("derivedMethodState", {
-    c: 2,
-    doubleC: () => state.c * 2,
-    octupleC: () => quadrupleC() * 2,
-  });
-  const quadrupleC = derived(() => state.doubleC() * 2);
-  expect(state.doubleC()).toEqual(4);
-  expect(quadrupleC()).toEqual(8);
-  expect(state.octupleC()).toEqual(16);
 });
 
 test("observable + reaction + derived + derived referencing derived", () => {
@@ -32,13 +20,8 @@ test("observable + reaction + derived + derived referencing derived", () => {
     },
     octupleV() {
       octupleVCalculated++;
-      return quadrupleV() * 2;
+      return state.doubleV() * 4;
     },
-  });
-  let quadrupleVCalculated = 0;
-  const quadrupleV = derived(() => {
-    quadrupleVCalculated++;
-    return state.doubleV() * 2;
   });
 
   const doubleVRunner = jest.fn(() => {
@@ -47,14 +30,6 @@ test("observable + reaction + derived + derived referencing derived", () => {
   });
   reaction(() => {
     doubleVRunner();
-  });
-
-  const quadrupleVRunner = jest.fn(() => {
-    expect(state.v * 4).toEqual(quadrupleV());
-    return quadrupleV();
-  });
-  reaction(() => {
-    quadrupleVRunner();
   });
 
   const octupleVRunner = jest.fn(() => {
@@ -71,11 +46,6 @@ test("observable + reaction + derived + derived referencing derived", () => {
   expect(doubleVRunner).toHaveReturnedWith(4);
   expect(doubleVRunner).toHaveReturnedWith(6);
   expect(doubleVCalculated).toEqual(2);
-
-  expect(quadrupleVRunner).toHaveBeenCalledTimes(2);
-  expect(quadrupleVRunner).toHaveReturnedWith(8);
-  expect(quadrupleVRunner).toHaveReturnedWith(12);
-  expect(quadrupleVCalculated).toEqual(2);
 
   expect(octupleVRunner).toHaveBeenCalledTimes(2);
   expect(octupleVRunner).toHaveReturnedWith(16);
@@ -123,15 +93,15 @@ test("runInAction", () => {
     updateV(newValue: number) {
       state.v = newValue;
     },
-  });
-  const doubleV = derived(() => {
-    doubleVCalled++;
-    return state.v * 2;
+    doubleV: () => {
+      doubleVCalled++;
+      return state.v * 2;
+    },
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(doubleV());
-    return doubleV(); // calling doubleV
+    expect(state.v * 2).toEqual(state.doubleV());
+    return state.doubleV(); // calling doubleV
   });
   reaction(() => {
     doubleVRunner();
@@ -144,9 +114,10 @@ test("runInAction", () => {
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
-  expect(doubleV()).toEqual(10);
+  expect(state.doubleV()).toEqual(10);
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
+  // problem: being called outside reactive context -> recomputes, because asComptuedFunction is not used.
 });
 
 test("`this` pattern works", () => {
