@@ -6,37 +6,44 @@ const actionRunner = observable("actionRunner", {
   },
 });
 
-test("derived values", () => {
-  const state = observable("derivedPropState", {
+test("inline derived values", () => {
+  const state = observable("derivedMethodState", {
     c: 2,
+    doubleC: () => state.c * 2,
+    octupleC: () => quadrupleC() * 2,
   });
-  const doubleC = derived(() => state.c * 2);
-  const quadrupleC = derived(() => doubleC() * 2);
-  expect(doubleC()).toEqual(4);
+  const quadrupleC = derived(() => state.doubleC() * 2);
+  expect(state.doubleC()).toEqual(4);
   expect(quadrupleC()).toEqual(8);
+  expect(state.octupleC()).toEqual(16);
 });
 
 test("observable + reaction + derived + derived referencing derived", () => {
+  let doubleVCalculated = 0;
+  let octupleVCalculated = 0;
   const state = observable("myObs", {
     v: 2,
     updateV(newValue: number) {
       state.v = newValue;
     },
-  });
-  let doubleVCalculated = 0;
-  const doubleV = derived(() => {
-    doubleVCalculated++;
-    return state.v * 2;
+    doubleV: () => {
+      doubleVCalculated++;
+      return state.v * 2;
+    },
+    octupleV() {
+      octupleVCalculated++;
+      return quadrupleV() * 2;
+    },
   });
   let quadrupleVCalculated = 0;
   const quadrupleV = derived(() => {
     quadrupleVCalculated++;
-    return doubleV() * 2;
+    return state.doubleV() * 2;
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(doubleV());
-    return doubleV();
+    expect(state.v * 2).toEqual(state.doubleV());
+    return state.doubleV();
   });
   reaction(() => {
     doubleVRunner();
@@ -50,11 +57,15 @@ test("observable + reaction + derived + derived referencing derived", () => {
     quadrupleVRunner();
   });
 
-  expect(state.v).toEqual(2);
-  expect(doubleV()).toEqual(4);
+  const octupleVRunner = jest.fn(() => {
+    expect(state.v * 8).toEqual(state.octupleV());
+    return state.octupleV();
+  });
+  reaction(() => {
+    octupleVRunner();
+  });
+
   state.updateV(3);
-  expect(state.v).toEqual(3);
-  expect(doubleV()).toEqual(6);
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2);
   expect(doubleVRunner).toHaveReturnedWith(4);
@@ -65,6 +76,11 @@ test("observable + reaction + derived + derived referencing derived", () => {
   expect(quadrupleVRunner).toHaveReturnedWith(8);
   expect(quadrupleVRunner).toHaveReturnedWith(12);
   expect(quadrupleVCalculated).toEqual(2);
+
+  expect(octupleVRunner).toHaveBeenCalledTimes(2);
+  expect(octupleVRunner).toHaveReturnedWith(16);
+  expect(octupleVRunner).toHaveReturnedWith(24);
+  expect(octupleVCalculated).toEqual(2);
 });
 
 test("auto-generated setters", () => {

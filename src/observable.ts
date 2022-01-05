@@ -1,4 +1,5 @@
 import * as mobx from "mobx";
+import * as mobxUtils from "mobx-utils";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
@@ -28,7 +29,8 @@ export function observable<T extends ObservableShape>(
     }
     annotations[key] = mobx.observable;
     if (value instanceof Function) {
-      asRecord(hasHadSettersAdded)[key] = (...args: any[]) => {
+      const asComputedFn = mobxUtils.computedFn(value);
+      const asAction = (...args: any[]) => {
         let result;
         mobx.runInAction(() => {
           const actionStackSnapshot = [...actionStack];
@@ -52,6 +54,13 @@ export function observable<T extends ObservableShape>(
           );
         });
         return result;
+      };
+      asRecord(hasHadSettersAdded)[key] = (...args: any[]) => {
+        if (mobx._isComputingDerivation()) {
+          return asComputedFn(...args);
+        } else {
+          return asAction(...args);
+        }
       };
     }
   });
