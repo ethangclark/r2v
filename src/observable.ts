@@ -1,17 +1,9 @@
-import { disableWarning } from "./warningUtils";
-
-disableWarning((str) =>
-  str.includes(
-    `invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set`
-  )
-);
-
 import * as mobx from "mobx";
-import * as mobxUtils from "mobx-utils";
 import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
 import { asRecord } from "./asRecord";
+import { derived } from "./derived";
 
 export const observables: ObservableCollection = {};
 
@@ -37,14 +29,14 @@ export function observable<T extends ObservableShape>(
     }
     annotations[key] = mobx.observable;
     if (value instanceof Function) {
-      const asComputedFn = mobxUtils.computedFn(value);
+      const asDerived = derived(value);
       const asAction = (...args: any[]) => {
         let result;
         mobx.runInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          result = asComputedFn(...args);
+          result = asDerived(...args);
           actionStack.pop();
           logResultantState(
             {
@@ -65,7 +57,7 @@ export function observable<T extends ObservableShape>(
       };
       asRecord(hasHadSettersAdded)[key] = (...args: any[]) => {
         if (mobx._isComputingDerivation()) {
-          return asComputedFn(...args);
+          return asDerived(...args);
         } else {
           return asAction(...args);
         }
