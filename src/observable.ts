@@ -1,5 +1,5 @@
 import * as mobx from "mobx";
-import { ObservableShape, ValueSetters, ObservableCollection } from "./types";
+import { ObservableShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
 import { asRecord } from "./asRecord";
@@ -13,7 +13,7 @@ let actionId = 0;
 export function observable<T extends ObservableShape>(
   observableName: string,
   observableBase: T
-): T & ValueSetters<T> {
+) {
   if (observables[observableName]) {
     throw Error(`observableName "${observableName}" is already in use`);
   }

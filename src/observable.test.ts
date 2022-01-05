@@ -6,6 +6,15 @@ const actionRunner = observable("actionRunner", {
   },
 });
 
+// const x = observable("x", {
+//   a: 2,
+//   setA(v: string) {
+//     console.log({ v });
+//   },
+// });
+// x.setA("asdf");
+// x.setA(2);
+
 test("observable + reaction + derived + derived referencing derived", () => {
   let doubleVCalculated = 0;
   let octupleVCalculated = 0;

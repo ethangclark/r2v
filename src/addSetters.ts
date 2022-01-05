@@ -1,5 +1,5 @@
 import { asRecord } from "./asRecord";
-import { ObservableShape, ValueSetters } from "./types";
+import { ObservableShape, Caps } from "./types";
 
 function fieldNameToSetterName(fieldName: string) {
   return "set" + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1);
@@ -7,20 +7,8 @@ function fieldNameToSetterName(fieldName: string) {
 function hasSetterDefined(fieldName: string, observableBase: ObservableShape) {
   return fieldNameToSetterName(fieldName) in observableBase;
 }
-function setterNameToFieldName(setterName: string) {
-  return setterName[3].toLowerCase() + setterName.slice(4);
-}
-function isSetterWithDefinedField(
-  key: string,
-  observableBase: ObservableShape
-) {
-  return /^set[A-Z]/.test(key) && setterNameToFieldName(key) in observableBase;
-}
 function shouldDefineSetter(key: string, observableBase: ObservableShape) {
   if (observableBase[key] instanceof Function) {
-    return false;
-  }
-  if (isSetterWithDefinedField(key, observableBase)) {
     return false;
   }
   if (hasSetterDefined(key, observableBase)) {
@@ -40,9 +28,7 @@ function shouldDefineErroringSetter(
 }
 
 // mutates in-place
-export function addValueSettersWhereNoExist<T extends ObservableShape>(
-  obj: T
-): T & ValueSetters<T> {
+export function addValueSettersWhereNoExist<T extends ObservableShape>(obj: T) {
   Object.keys(obj).forEach((key) => {
     if (!shouldDefineSetter(key, obj)) {
       return;
@@ -60,5 +46,14 @@ export function addValueSettersWhereNoExist<T extends ObservableShape>(
       };
     }
   });
-  return obj as T & ValueSetters<T>;
+
+  // this type logic as initiall encapsulated in a `ValueSetters` generic type,
+  // but we're inlining it because it improves type hints.
+  return obj as T & {
+    [Key in keyof T as Key extends `set${Caps}${string}`
+      ? never
+      : T[Key] extends (...args: any[]) => any
+      ? never
+      : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
+  };
 }

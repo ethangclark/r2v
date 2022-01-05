@@ -46,13 +46,5 @@ type NonCapsToCaps = {
   y: "Y";
   z: "Z";
 };
-type Caps = NonCapsToCaps[keyof NonCapsToCaps];
 
-// https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
-export type ValueSetters<T> = {
-  [Key in keyof T as Key extends `set${Caps}${string}`
-    ? never
-    : T[Key] extends (...args: any[]) => any
-    ? never
-    : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
-};
+export type Caps = NonCapsToCaps[keyof NonCapsToCaps];
