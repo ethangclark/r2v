@@ -121,6 +121,17 @@ Here, `observer`s and `reactions` will update when the giant object is set to a 
 
 Setters are methods that better-mobx auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
+If you define your own setter methods, better-mobx will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
+
+```tsx
+const state = observable({
+  x: 2,
+  setX: null,
+})
+```
+
+If you define the setter as `null`, better-mobx will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
+
 #### IMPORTANT
 
 You must ONLY pull values out of observables from WITHIN observers and reactions for the observers and reactions to update when the observables update.
