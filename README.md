@@ -32,12 +32,12 @@ const state = observable('userState', {
     const users = await fetch(...)
 
     // Setters like `setUsers` are created automatically for non-function fields.
-    // State must be modified via synchronous actions; since `await` was called above, the
-    // action is no longer running, so another action (`setUsers`) must be called
+    // State must be modified via synchronous methods; since `await` was called above, the
+    // method is no longer running, so another method (`setUsers`) must be called
     state.setUsers(users)
   },
 
-  // this is an `action`
+  // this is an `method`
   setUserName(userId: string | number | whatever, newName: string) {
     const user = state.users.find(u => u.id === userId)
     if (user) {
@@ -67,21 +67,27 @@ export const UserTable = observer(() => (
 ))
 ```
 
-#### Actions
+#### Methods
 
-Functions included in observable definitions are automatically transformed into actions.
+Functions included in observable definitions are automatically transformed into methods.
 
-Actions have 2 defining features: they are the ONLY way to modify state, and they MUST be synchronous. Every time you call an action that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields.
+Methods have 3 defining features:
 
-Actions (like `fetchUsers()`) are free to read from and modify state on any observable.
+1. They are the ONLY way to modify state
+2. Their state modifications MUST be synchronous. (It's fine if they trigger an asynchronous process, but they may not update state after `await`ing anything or in a callback.)
+3. They also provide the functionality of `derived` functions (described below)
 
-One important thing to note: actions may call other actions, and `observable`s will not update until the outermost action has finished being (synchronously) executed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`, but this action will only cause 1 render (even though it calls two other actions): `myObs.setNames(first: string, last: string) { state.setFirstName(first); state.setLastName(last) }`
+Every time you call an method that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields.
 
-If you want a generic way to execute several actions together ad-hoc, without having to create higher-level actions, you could create an action runner:
+Methods (like `fetchUsers()`) are free to read from and modify state on any observable.
+
+One important thing to note: methods may call other methods, and `observable`s will not update until the outermost method has finished being (synchronously) executed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`, but this method will only cause 1 render (even though it calls two other methods): `myObs.setNames(first: string, last: string) { state.setFirstName(first); state.setLastName(last) }`
+
+If you want a generic way to execute several methods together ad-hoc, without having to create higher-level methods, you could create an method runner:
 
 ```tsx
-const actionRunner = observable("actionRunner", {
-  runInAction(cb: (...args: any[]) => any) {
+const methodRunner = observable("methodRunner", {
+  runAsMethod(cb: (...args: any[]) => any) {
     cb();
   },
 });
@@ -90,15 +96,30 @@ const actionRunner = observable("actionRunner", {
 and use it like so:
 
 ```tsx
-actionRunner.runInAction(() => {
-  someObs.someAction()
-  someObs.someOtherAction()
+methodRunner.runAsMethod(() => {
+  someObs.someMethod()
+  someObs.someOtherMethod()
 })
 ```
 
+If you change a function on an observable, it will no longer function as a method after it's been changed, and so it won't be allowed to update state. (If this is a problem for your use case, create an issue and we can assess whether we want to add support for this ability.) A valid use-case for changing a function is if you want to prevent something being transformed into an observable (say, a particularly massive object) for performance reasons, but still want reactions to occur when the _reference_ to that object change. Here's an example:
+
+```tsx
+const state = observable('boxExample', {
+  giantObjectBox: () => someGiantObject,
+  getGiantObject() {
+    return this.giantObjectBox()
+  },
+  setGiantObject(newGiantObject: GiantObjectType) {
+    this.giantObjectBox = () => newGiantObject
+  },
+})
+```
+Here, `observer`s and `reactions` will update when the giant object is set to a new value, but won't update to changes on subfields of the giant object. Since turning an object into an observable has a computational expense, this may be desirable in some cases.
+
 #### Setters
 
-Setters are actions that better-mobx auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
+Setters are methods that better-mobx auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
 #### IMPORTANT
 
@@ -140,7 +161,7 @@ const activeUsers = derived(() => {
   return state.users.filter(u => !u.deactivated)
 }),
 
-// the result of calls to this action will be cached by `id`, automatically,
+// the result of calls to this method will be cached by `id`, automatically,
 // updating the same as the above case
 const user = derived((id: string | number | whatever) => {
   // (`state` is an observable object)
@@ -151,42 +172,52 @@ const user = derived((id: string | number | whatever) => {
 `derived` function results behave the same as `observable` state fields, so this component will always display the `user`'s latest field values, even after those values change:
 
 ```tsx
-// the logic inside the definitino passed to `derived` above will only execute once in the rendering of this,
+// the logic inside the definition passed to `derived` above will only execute once in the rendering of this,
 // and will only execute once when either `userId` changes or that user's `fullName` or `id` changes.
 const User = observer(() => (<div>User ${user(userId).fullName} (id: ${user(userId).id})</div>))
 ```
 
-Derived state is free to reference both obervable state and other derived state. So this is a valid use of derived state:
+`derived` functions are free to reference both obervable state and other derived state. So this is a valid `derived` function:
 
 ```tsx
 const userFullName = derived((id: string | number | whatever) => user(id)?.fullName)
 ```
 
+As mentioned above, all fields on `observer`s also function as `derived` functions. So in the following example, `userState.fullName` provides identical functionality to `userFullName` above:
+
+```tsx
+const userState = observer('userState', {
+  fullName(id: string | number | whatever) {
+    return user(id)?.fullName
+  }
+})
+```
+
 #### IMPORTANT
 
-Do not use `try/catch` within derived state. Errors here can break `observers` and `reaction`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
+Do not use `try/catch` within a `derived` function. Errors here can break `observers` and `reaction`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some reactions to work while others have broken.)
 
 For this reason, TypeScript's "strict" mode is deeply, _deeply_ encouraged.
 
 #### IMPORTANT
 
-The same rule about observable state holds with derived state: you must ONLY call derived state functions from WITHIN observers and reactions for the observers and reactions to update when derived state updates.
+The same rule about observable state holds with derived state: you must ONLY call `derived` functions from WITHIN observers and reactions for the observers and reactions to update when derived state updates.
 
 ## Special use-case API
 
 These exports allow for interoperability with other frameworks.
 
-### reaction
+### reacttion
 
-#### API: reaction(def: () => (void | (nonReactiveFollowup: () => void))): function stop(): void
+#### API: reacttion(def: () => (void | (nonReactiveFollowup: () => void))): function stop(): void
 
-If you want to "push" values from an observer into something else as they update, you can use `reaction` to do so.
+If you want to "push" values from an observer into something else as they update, you can use `reacttion` to do so.
 
-Every time any value referenced in a `reaction` updates, `reaction` will rerun.
+Every time any value referenced in a `reacttion` updates, `reacttion` will rerun.
 
-Your `reaction` definition may return a function, if you wish. This function will be called immediatley after the `reaction` completes, and any `observable` values referenced by this function will not trigger `reaction` re-runs when they change.
+Your `reacttion` definition may return a function, if you wish. This function will be called immediatley after the `reacttion` completes, and any `observable` values referenced by this function will not trigger `reacttion` re-runs when they change.
 
-Creating a `reaction` returns a `stop()` function, which can be called to stop the reaction from running.
+Creating a `reacttion` returns a `stop()` function, which can be called to stop the reacttion from running.
 
 ### mobx
 
@@ -194,6 +225,6 @@ While it is not recommended, if you wish to use better-mobx's version of mobx di
 
 ## gotchas
 
-### dereferencing `observable` or `derived` fields outside of `observer`s or `reaction`s
+### dereferencing `observable` or `derived` fields outside of `observer`s or `reacttion`s
 
-This is mentioned above, but worth repeating: if you pull fields off of an `observable` _outside_ of an `observer` or `reaction`, and then use those fields _inside_ an `observer` or `reaction`, the `observer/reaction` *will not update* when those fields change on the `observable`. You should *only* dereference fields you want to "listen" to *inside* of `observer`s or `reaction`s.
+This is mentioned above, but worth repeating: if you pull fields off of an `observable` _outside_ of an `observer` or `reacttion`, and then use those fields _inside_ an `observer` or `reacttion`, the `observer/reacttion` *will not update* when those fields change on the `observable`. You should *only* dereference fields you want to "listen" to *inside* of `observer`s or `reacttion`s.
