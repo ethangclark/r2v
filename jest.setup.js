@@ -1,5 +1,5 @@
 // fail tests if console method invoked
-["log", "warn", "error"].forEach((methodName) => {
+[/**"log", /**/ "warn", "error"].forEach((methodName) => {
   const calls = [];
   console[methodName] = (...args) =>
     calls.push({
