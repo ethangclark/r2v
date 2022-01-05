@@ -13,7 +13,7 @@ const actionRunner = observable("actionRunner", {
 //   },
 // });
 // x.setA("asdf");
-// x.setA(2);
+// // x.setA(2);
 
 test("observable + reaction + derived + derived referencing derived", () => {
   let doubleVCalculated = 0;
