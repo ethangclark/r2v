@@ -1,3 +1,4 @@
+import { Merge } from "type-fest";
 import { asRecord } from "./asRecord";
 import { ObservableShape } from "./types";
 
@@ -35,13 +36,18 @@ export function addValueSettersWhereNoExist<T extends ObservableShape>(obj: T) {
     }
   });
 
-  // this type logic as initiall encapsulated in a `ValueSetters` generic type,
-  // but we're inlining it because it improves type hints.
-  return obj as T & {
-    [Key in keyof T as T[Key] extends (...args: any[]) => any
-      ? never // not adding anything for functions
-      : T[`set${Capitalize<string & Key>}`] extends (...args: any[]) => any
-      ? never // not adding anything for fields that have setter functions defined
-      : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
-  };
+  // somehow I couldn't figure the type logic of this out from any of these:
+  // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
+  // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
+  // https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#inferring-within-conditional-types
+  // ...so relying on type-fest!
+  // TODO?: inline type-fest logic to improve type hints
+  return obj as Merge<
+    {
+      [Key in keyof T as T[Key] extends (...args: any[]) => any
+        ? never // not adding anything for functions
+        : `set${Capitalize<string & Key>}`]: (value: T[Key]) => void;
+    },
+    T
+  >;
 }

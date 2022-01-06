@@ -2,7 +2,6 @@ import * as mobx from "mobx";
 import { ObservableShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-import { asRecord } from "./asRecord";
 import { derived } from "./derived";
 
 export const observables: ObservableCollection = {};
@@ -55,7 +54,8 @@ export function observable<T extends ObservableShape>(
         });
         return result;
       };
-      asRecord(hasHadSettersAdded)[key] = (...args: any[]) => {
+      //@ts-expect-error
+      hasHadSettersAdded[key] = (...args: any[]) => {
         if (mobx._isComputingDerivation()) {
           return asDerived(...args);
         } else {
