@@ -1,7 +1,6 @@
 import { createStore, Store, Action } from "redux";
 import * as mobx from "mobx";
-import { mapStackTrace } from "sourcemapped-stacktrace";
-import { ObservableShape, ObservableCollection, Json } from "./types";
+import { ObservableShape, ObservableCollection } from "./types";
 import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};
@@ -87,31 +86,17 @@ function initializeIdempotent() {
   return reduxStore;
 }
 
-let queue: Array<Promise<any>> = [];
-
-export async function logResultantState(
-  event: { type: string; [key: string]: Json },
-  observables: ObservableCollection,
-  error: Error
+export function logResultantState(
+  event: ObservableShape & { type: string },
+  observables: ObservableCollection
 ) {
   const store = initializeIdempotent();
   if (store) {
-    const promise = (async function () {
-      const stack = await new Promise((resolve) =>
-        mapStackTrace(error.stack, resolve)
-      );
-      Object.entries(observables).forEach(([observableName, obs]) => {
-        noteObservable(observableName, obs);
-      });
-      prepForLogging();
-      store.dispatch({
-        ...event,
-        stack,
-      });
-    })();
-    queue.push(promise);
-    await Promise.all(queue);
-    queue = queue.filter((item) => item !== promise);
+    Object.entries(observables).forEach(([observableName, obs]) => {
+      noteObservable(observableName, obs);
+    });
+    prepForLogging();
+    store.dispatch(event);
   }
 }
 
