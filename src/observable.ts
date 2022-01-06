@@ -40,17 +40,12 @@ export function observable<T extends ObservableShape>(
           logResultantState(
             {
               type: actionSignature,
-              actionStack: actionStackSnapshot,
-              // TODO?: pass raw error, asynchronously get trace with sourcemapped-stacktrace in `logResultantState`, and log that trace
-              stack:
-                Error()
-                  .stack?.split("\n")
-                  .slice(1)
-                  .map((line) => line.trim()) || null,
               arg0: args[0],
               args,
+              actionStack: actionStackSnapshot,
             },
-            observables
+            observables,
+            Error()
           );
         });
         return result;
