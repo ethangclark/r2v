@@ -41,6 +41,7 @@ export function observable<T extends ObservableShape>(
             {
               type: actionSignature,
               actionStack: actionStackSnapshot,
+              // TODO?: pass raw error, asynchronously get trace with sourcemapped-stacktrace in `logResultantState`, and log that trace
               stack:
                 Error()
                   .stack?.split("\n")
