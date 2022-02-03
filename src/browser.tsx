@@ -20,6 +20,10 @@ const obs2 = observable("obs2", {
   },
 });
 
+const anonObs = observable({
+  d: 5,
+});
+
 reaction(() => {
   console.log("a/b:", obs1.a, obs2.b);
 });
@@ -30,8 +34,8 @@ obs2.setB(456);
 const InternalComponentTest = observer(() => {
   console.log("internal is rendering...");
   return (
-    <div onClick={() => obs2.setC(obs2.c + 1)}>
-      Hello from internal component. {obs2.c}
+    <div onClick={() => anonObs.setD(anonObs.d + 1)}>
+      Hello from internal component. {anonObs.d}
     </div>
   );
 });

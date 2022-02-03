@@ -9,10 +9,19 @@ export const observables: ObservableCollection = {};
 const actionStack: string[] = [];
 let actionId = 0;
 
-export function observable<T extends ObservableShape>(
-  observableName: string,
-  observableBase: T
-) {
+let anonymousNameCount = 1;
+function getAnonymousName() {
+  return `<ANON#${anonymousNameCount++}>`;
+}
+
+type Params<T> = [string, T] | [T];
+
+export function observable<T extends ObservableShape>(...params: Params<T>) {
+  const observableName = (
+    params.length === 2 ? params[0] : getAnonymousName()
+  ) as string;
+  const observableBase = (params.length === 2 ? params[1] : params[0]) as T;
+
   if (observables[observableName]) {
     throw Error(`observableName "${observableName}" is already in use`);
   }
