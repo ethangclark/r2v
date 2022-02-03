@@ -1,6 +1,8 @@
 # `mx2`
 
-mx2 is a state-management solution for TypeScript + React. It is a replacement for ~90% of component props, hooks, and context.
+## React + Mobx without React or Mobx
+
+mx2 is a React state-management solution. It replaces ~90% of component props, hooks, and context.
 
 Instead of wrapping state in hooks and passing it around via props or context, `mx2` lets you define standalone `observable` state objects, which can be referenced from any React function wrapped in `observer`. Whenever any `observable` field or subfield updates, only those `observer` components that read from that particular field or subfield update.
 
