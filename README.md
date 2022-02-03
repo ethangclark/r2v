@@ -1,16 +1,18 @@
-# `better-mobx`
+# `mx2`
 
-better-mobx is a state-management solution for TypeScript + React. It allows you to define `observable` state, which can be referenced from any React function component wrapped in `observable`. Whenever any `observable` field or subfield updates, only those `observable` components that read from that particular field or subfield update.
+mx2 is a state-management solution for TypeScript + React. It is a replacement for ~90% of component props, hooks, and context.
 
-`better-mobx` is a fundamentally different programming model than most state-management solutions, so it's recommended that you read the entire README before using `better-mobx`.
+Instead of wrapping state in hooks and passing it around via props or context, `mx2` lets you define standalone `observable` state objects, which can be referenced from any React function wrapped in `observer`. Whenever any `observable` field or subfield updates, only those `observer` components that read from that particular field or subfield update.
+
+`mx2` is a fundamentally different programming model than most state-management solutions, so it's recommended that you read the entire README before using `mx2`.
 
 ## Logging
 
-better-mobx logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
+mx2 logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
 
 ## Comparison with MobX
 
-better-mobx condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX.
+mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX.
 
 ## Core API
 
@@ -77,7 +79,7 @@ Methods have 3 defining features:
 2. Their state modifications MUST be synchronous. (It's fine if they trigger an asynchronous process, but they may not update state after `await`ing anything or in a callback.)
 3. They also provide the functionality of `derived` functions (described below)
 
-Every time you call an method that updates state, better-mobx triggers rerenders on all `observer`s that reference any updated fields/subfields.
+Every time you call an method that updates state, mx2 triggers rerenders on all `observer`s that reference any updated fields/subfields.
 
 Methods (like `fetchUsers()`) are free to read from and modify state on any observable.
 
@@ -119,9 +121,9 @@ Here, `observer`s and `reactions` will update when the giant object is set to a 
 
 #### Setters
 
-Setters are methods that better-mobx auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
+Setters are methods that mx2 auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = observer('myObserverName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
-If you define your own setter methods, better-mobx will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
+If you define your own setter methods, mx2 will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
 
 ```tsx
 const state = observable({
@@ -130,7 +132,7 @@ const state = observable({
 })
 ```
 
-If you define the setter as `null`, better-mobx will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
+If you define the setter as `null`, mx2 will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
 
 #### IMPORTANT
 
@@ -164,7 +166,7 @@ For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-r
 `derived` functions cache derived state, allowing you to avoid expensive recalculations. They work like this:
 
 ```tsx
-// better-mobx stores the result of this after it's called once,
+// mx2 stores the result of this after it's called once,
 // and only ever recalculates it if `state.users` changes,
 // which makes it very efficient
 const activeUsers = derived(() => {
@@ -232,7 +234,7 @@ Creating a `reacttion` returns a `stop()` function, which can be called to stop 
 
 ### mobx
 
-While it is not recommended, if you wish to use better-mobx's version of mobx directly, you may via `import { mobx } from 'better-mobx'`
+While it is not recommended, if you wish to use mx2's version of mobx directly, you may via `import { mobx } from 'mx2'`
 
 ## gotchas
 

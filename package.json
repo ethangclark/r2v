@@ -1,9 +1,9 @@
 {
-  "name": "better-mobx",
-  "version": "0.1.0",
-  "description": "typesafe react state hook / mobx alternative",
+  "name": "mx2",
+  "version": "0.2.0",
+  "description": "typesafe react props/hooks/context alternative",
   "author": "Ethan Gregory Clark <ethangclark@gmail.com>",
-  "repository": "https://github.com/8balloon/better-mobx",
+  "repository": "https://github.com/8balloon/mx2",
   "license": "MIT",
   "keywords": [
     "streaming",
