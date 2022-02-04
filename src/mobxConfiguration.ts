@@ -15,8 +15,8 @@ configure({
   computedRequiresReaction: false,
   observableRequiresReaction: false,
 
-  // We're not going to yell at users for unnecessarily wrapping components with `observer`
-  reactionRequiresObservable: false,
+  // We're not going to yell at users for unnecessarily wrapping components with `View`
+  ReactionRequiresObservable: false,
 
   // It is NOT worth sacrificing stack traces for "continuing to work after an error"
   disableErrorBoundaries: true,

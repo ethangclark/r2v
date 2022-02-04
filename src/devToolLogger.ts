@@ -1,12 +1,12 @@
 import { createStore, Store, Action } from "redux";
 import * as mobx from "mobx";
-import { ObservableShape, ObservableCollection } from "./types";
+import { StateModuleShape, ObservableCollection } from "./types";
 import { loggingExtension } from "./loggingExtension";
 
 const observables: ObservableCollection = {};
 let observablesAsJson: Record<string, string> = {};
 
-export function noteObservable(observableName: string, obs: ObservableShape) {
+export function noteObservable(observableName: string, obs: StateModuleShape) {
   if (!loggingExtension) {
     return;
   }
@@ -15,7 +15,7 @@ export function noteObservable(observableName: string, obs: ObservableShape) {
 }
 
 let lastLoggedAsJson: Record<string, string> = {};
-let toLog: Record<string, ObservableShape> = {};
+let toLog: Record<string, StateModuleShape> = {};
 
 // if any observable's JSON representation has changed, sets toLog = { ...toLog, ...changes }
 // (Redux uses object equality comparison to determine if changes have taken place)
@@ -67,7 +67,7 @@ function initialize(extension: (...args: any[]) => any) {
 }
 
 let initialized = false;
-let reduxStore: Store<Record<string, ObservableShape>, Action<any>> | null =
+let reduxStore: Store<Record<string, StateModuleShape>, Action<any>> | null =
   null;
 function initializeIdempotent() {
   if (initialized) {
@@ -87,7 +87,7 @@ function initializeIdempotent() {
 }
 
 export function logResultantState(
-  event: ObservableShape & { type: string },
+  event: StateModuleShape & { type: string },
   observables: ObservableCollection
 ) {
   const store = initializeIdempotent();

@@ -1,54 +1,54 @@
 import React from "react";
-import { observable, reaction, observer } from "./main";
+import { State, Reaction, View } from "./main";
 import { render } from "react-dom";
 
-const obs1 = observable("obs1", {
+const state1 = State("state1", {
   a: 2,
 });
-const obs2 = observable("obs2", {
+const state2 = State("state2", {
   b: 3,
   c: 4,
   double() {
-    obs2.b = obs2.b * 2;
+    state2.b = state2.b * 2;
   },
   quadruple() {
-    obs2.double();
-    obs2.double();
+    state2.double();
+    state2.double();
   },
   doubleB() {
-    return obs2.b * 2;
+    return state2.b * 2;
   },
 });
 
-const anonObs = observable({
+const anonState = State({
   d: 5,
 });
 
-reaction(() => {
-  console.log("a/b:", obs1.a, obs2.b);
+Reaction(() => {
+  console.log("a/b:", state1.a, state2.b);
 });
 
-obs1.setA(123);
-obs2.setB(456);
+state1.setA(123);
+state2.setB(456);
 
-const InternalComponentTest = observer(() => {
+const InternalComponentTest = View(() => {
   console.log("internal is rendering...");
   return (
-    <div onClick={() => anonObs.setD(anonObs.d + 1)}>
-      Hello from internal component. {anonObs.d}
+    <div onClick={() => anonState.setD(anonState.d + 1)}>
+      Hello from internal component. {anonState.d}
     </div>
   );
 });
 
-const MyComponent = observer(() => {
+const MyComponent = View(() => {
   console.log("Outer is rendering.");
   return (
     <div>
       Hello
-      <div onClick={() => obs1.setA(obs1.a + 1)}>{obs1.a}</div>
-      <div onClick={() => obs2.setB(obs2.b + 2)}>{obs2.b}</div>
-      <div onClick={() => obs2.double()}>double: {obs2.doubleB()}</div>
-      <div onClick={() => obs2.quadruple()}>quadruple</div>
+      <div onClick={() => state1.setA(state1.a + 1)}>{state1.a}</div>
+      <div onClick={() => state2.setB(state2.b + 2)}>{state2.b}</div>
+      <div onClick={() => state2.double()}>double: {state2.doubleB()}</div>
+      <div onClick={() => state2.quadruple()}>quadruple</div>
       <InternalComponentTest />
     </div>
   );

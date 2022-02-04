@@ -1,10 +1,10 @@
 import * as mobx from "mobx";
-import { ObservableShape, ObservableCollection } from "./types";
+import { StateModuleShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-import { derived } from "./derived";
+import { Materialization } from "./Materialization";
 
-export const observables: ObservableCollection = {};
+const observables: ObservableCollection = {};
 
 const actionStack: string[] = [];
 let actionId = 0;
@@ -14,16 +14,16 @@ function getAnonymousName() {
   return `<ANON#${anonymousNameCount++}>`;
 }
 
-type Params<T> = [string, T] | [T];
+type StateParams<T extends StateModuleShape> = [string, T] | [T];
 
-export function observable<T extends ObservableShape>(...params: Params<T>) {
+export function State<T extends StateModuleShape>(...params: StateParams<T>) {
   const observableName = (
     params.length === 2 ? params[0] : getAnonymousName()
   ) as string;
   const observableBase = (params.length === 2 ? params[1] : params[0]) as T;
 
   if (observables[observableName]) {
-    throw Error(`observableName "${observableName}" is already in use`);
+    throw Error(`state module name "${observableName}" is already in use`);
   }
 
   const hasHadSettersAdded = addValueSettersWhereNoExist(observableBase); // mutates in-place
@@ -37,14 +37,14 @@ export function observable<T extends ObservableShape>(...params: Params<T>) {
     }
     annotations[key] = mobx.observable;
     if (value instanceof Function) {
-      const asDerived = derived(value);
+      const asMaterialization = Materialization(value);
       const asAction = (...args: any[]) => {
         let result;
         mobx.runInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          result = asDerived(...args);
+          result = asMaterialization(...args);
           actionStack.pop();
           logResultantState(
             {
@@ -61,7 +61,7 @@ export function observable<T extends ObservableShape>(...params: Params<T>) {
       //@ts-expect-error
       hasHadSettersAdded[key] = (...args: any[]) => {
         if (mobx._isComputingDerivation()) {
-          return asDerived(...args);
+          return asMaterialization(...args);
         } else {
           return asAction(...args);
         }

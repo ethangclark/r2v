@@ -1,6 +1,6 @@
 import * as mobx from "mobx";
 
-export function reaction(def: () => (() => void) | void) {
+export function Reaction(def: () => (() => void) | void) {
   let andThen = () => {};
   const dispose = mobx.reaction(
     () => {
@@ -10,7 +10,9 @@ export function reaction(def: () => (() => void) | void) {
     { fireImmediately: true }
   );
 
-  return function stop() {
-    dispose();
+  return {
+    end() {
+      dispose();
+    },
   };
 }

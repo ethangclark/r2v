@@ -8,6 +8,6 @@ disableWarning((str) =>
 
 import * as mobxUtils from "mobx-utils";
 
-export function derived<T extends (...args: any[]) => any>(def: T) {
+export function Materialization<T extends (...args: any[]) => any>(def: T) {
   return mobxUtils.computedFn(def);
 }

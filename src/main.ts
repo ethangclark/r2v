@@ -1,9 +1,9 @@
 // import first so configuration logic executes first
 import "./mobxConfiguration";
 
-export { observer } from "./observer";
-export { observable } from "./observable";
-export { derived } from "./derived";
-export { reaction } from "./reaction";
+export { View } from "./View";
+export { State } from "./State";
+export { Materialization } from "./Materialization";
+export { Reaction } from "./Reaction";
 
 export * as mobx from "mobx";

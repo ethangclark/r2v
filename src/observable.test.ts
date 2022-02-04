@@ -1,4 +1,4 @@
-import { observable, reaction } from "./main";
+import { observable, Reaction } from "./main";
 
 const actionRunner = observable("actionRunner", {
   runInAction(cb: (...args: any[]) => any) {
@@ -15,7 +15,7 @@ const actionRunner = observable("actionRunner", {
 // x.setA("asdf");
 // x.setA(2);
 
-test("observable + reaction + derived + derived referencing derived", () => {
+test("observable + Reaction + Materialization + Materialization referencing Materialization", () => {
   let doubleVCalculated = 0;
   let octupleVCalculated = 0;
   const state = observable("myObs", {
@@ -37,7 +37,7 @@ test("observable + reaction + derived + derived referencing derived", () => {
     expect(state.v * 2).toEqual(state.doubleV());
     return state.doubleV();
   });
-  reaction(() => {
+  Reaction(() => {
     doubleVRunner();
   });
 
@@ -45,7 +45,7 @@ test("observable + reaction + derived + derived referencing derived", () => {
     expect(state.v * 8).toEqual(state.octupleV());
     return state.octupleV();
   });
-  reaction(() => {
+  Reaction(() => {
     octupleVRunner();
   });
 
@@ -112,7 +112,7 @@ test("runInAction", () => {
     expect(state.v * 2).toEqual(state.doubleV());
     return state.doubleV(); // calling doubleV
   });
-  reaction(() => {
+  Reaction(() => {
     doubleVRunner();
   });
 
