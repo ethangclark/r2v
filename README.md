@@ -1,12 +1,12 @@
-# `mx2`
+# mx2
 
 ## React + Mobx without React or Mobx
 
-mx2 is a React state-management solution. It replaces ~90% of component props, hooks, and context.
+mx2 replaces ~90% of React component props, hooks, and context.
 
-Instead of wrapping state in hooks and passing it around via props or context, `mx2` lets you define standalone `State` state objects, which can be referenced from any React function wrapped in `View`. Whenever any `State` field or subfield updates, only those `View` components that read from that particular field or subfield update.
+Instead of wrapping state in hooks and passing it around with props or context, mx2 lets you define standalone `State` state objects that you can reference directly from any component in any part of the DOM tree -- so long as you wrap it in `View`. Whenever any `State` field or subfield updates, only `View`s that read from that particular field or subfield update.
 
-`mx2` is a fundamentally different programming model than most state-management solutions, so it's recommended that you read the entire README before using `mx2`.
+mx2 is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using mx2.
 
 ## Logging
 
@@ -14,7 +14,7 @@ mx2 logs everything in [Redux DevTools](https://chrome.google.com/webstore/detai
 
 ## Comparison with MobX
 
-mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX.
+mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, mx2 `State` objets are valid Mobx `observable`s.
 
 ## Core API
 

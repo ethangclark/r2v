@@ -5,10 +5,12 @@ const wellIntentionedConfigureErrorMessage =
   "WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.";
 
 disableWarning(
-  (warning) => warning.includes(wellIntentionedConfigureErrorMessage) // LET IT FAIL :D
+  (warning) => warning.includes(wellIntentionedConfigureErrorMessage) // LET IT FAIL >:D
 );
 
-configure({
+export type MobxConfig = Parameters<typeof configure>[0];
+
+const defaultConfig: MobxConfig = {
   enforceActions: "always", // so we can _easily_ track what happens in redux devtools
 
   // these restrictions _may_ help with learning, but they make everything else cumbersome
@@ -26,4 +28,13 @@ configure({
 
   // We allow users to leverage our version of mobx via `import { mobx } from 'mx2' if they wish
   isolateGlobalState: true,
-});
+};
+
+configure(defaultConfig);
+
+export function overrideMobxConfig(params: MobxConfig) {
+  configure({
+    ...defaultConfig,
+    ...params,
+  });
+}
