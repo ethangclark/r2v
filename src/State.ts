@@ -1,4 +1,9 @@
-import * as mobx from "mobx";
+import {
+  observable as mobxObservable,
+  runInAction as mobxRunInAction,
+  _isComputingDerivation as mobxIsComputingDerivation,
+  makeObservable as mobxMakeObservable,
+} from "mobx";
 import { StateModuleShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
@@ -35,12 +40,12 @@ export function State<T extends StateModuleShape>(...params: StateParams<T>) {
     if (value === undefined) {
       return;
     }
-    annotations[key] = mobx.observable;
+    annotations[key] = mobxObservable;
     if (value instanceof Function) {
       const asMaterialization = Materialization(value);
       const asAction = (...args: any[]) => {
         let result;
-        mobx.runInAction(() => {
+        mobxRunInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
@@ -60,7 +65,7 @@ export function State<T extends StateModuleShape>(...params: StateParams<T>) {
       };
       //@ts-expect-error
       hasHadSettersAdded[key] = (...args: any[]) => {
-        if (mobx._isComputingDerivation()) {
+        if (mobxIsComputingDerivation()) {
           return asMaterialization(...args);
         } else {
           return asAction(...args);
@@ -69,7 +74,7 @@ export function State<T extends StateModuleShape>(...params: StateParams<T>) {
     }
   });
 
-  const hasBeenMadeObservable = mobx.makeObservable(
+  const hasBeenMadeObservable = mobxMakeObservable(
     hasHadSettersAdded,
     annotations
   ); // mutates in-place

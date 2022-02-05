@@ -6,8 +6,8 @@ disableWarning((str) =>
   )
 );
 
-import * as mobxUtils from "mobx-utils";
+import { computedFn as mobxComputedFn } from "mobx-utils";
 
 export function Materialization<T extends (...args: any[]) => any>(def: T) {
-  return mobxUtils.computedFn(def);
+  return mobxComputedFn(def);
 }

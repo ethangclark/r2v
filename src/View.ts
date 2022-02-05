@@ -1,5 +1,5 @@
-import * as mobxReactLite from "mobx-react-lite";
+import { observer as mobxReactLiteObserver } from "mobx-react-lite";
 
-export function View(...params: Parameters<typeof mobxReactLite.observer>) {
-  return mobxReactLite.observer(...params);
+export function View(...params: Parameters<typeof mobxReactLiteObserver>) {
+  return mobxReactLiteObserver(...params);
 }

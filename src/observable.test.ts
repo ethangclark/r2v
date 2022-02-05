@@ -1,12 +1,12 @@
-import { observable, Reaction } from "./main";
+import { State, Reaction } from "./main";
 
-const actionRunner = observable("actionRunner", {
+const actionRunner = State("actionRunner", {
   runInAction(cb: (...args: any[]) => any) {
     cb();
   },
 });
 
-// const x = observable("x", {
+// const x = State("x", {
 //   a: 2,
 //   // setA(v: string) {
 //   //   console.log({ v });
@@ -15,10 +15,10 @@ const actionRunner = observable("actionRunner", {
 // x.setA("asdf");
 // x.setA(2);
 
-test("observable + Reaction + Materialization + Materialization referencing Materialization", () => {
+test("State + Reaction + Materialization + Materialization referencing Materialization", () => {
   let doubleVCalculated = 0;
   let octupleVCalculated = 0;
-  const state = observable("myObs", {
+  const state = State("myObs", {
     v: 2,
     updateV(newValue: number) {
       state.v = newValue;
@@ -63,7 +63,7 @@ test("observable + Reaction + Materialization + Materialization referencing Mate
 });
 
 test("auto-generated setters", () => {
-  const myObs = observable("withSettersObs", {
+  const myObs = State("withSettersObs", {
     a: 2,
   });
   expect(myObs.a).toBe(2);
@@ -73,7 +73,7 @@ test("auto-generated setters", () => {
 });
 
 test("custom setters are respected", () => {
-  const myObs = observable("withCustomSetter", {
+  const myObs = State("withCustomSetter", {
     a: 2,
     setA(v: number) {
       myObs.a = v * 2;
@@ -85,7 +85,7 @@ test("custom setters are respected", () => {
 });
 
 test("setters are not generated for custom setters", () => {
-  const myObs = observable("withCustomSetter2", {
+  const myObs = State("withCustomSetter2", {
     a: 2,
     setA(v: number) {
       myObs.a = v * 2;
@@ -97,7 +97,7 @@ test("setters are not generated for custom setters", () => {
 
 test("runInAction", () => {
   let doubleVCalled = 0;
-  const state = observable("runInAction test obs", {
+  const state = State("runInAction test obs", {
     v: 2,
     updateV(newValue: number) {
       state.v = newValue;
@@ -130,7 +130,7 @@ test("runInAction", () => {
 });
 
 test("`this` pattern works", () => {
-  const state = observable("thisPatternObs", {
+  const state = State("thisPatternObs", {
     c: 2,
     doubleC() {
       return state.c * 2;
@@ -139,7 +139,7 @@ test("`this` pattern works", () => {
   expect(state.doubleC()).toEqual(4);
 });
 test("self-reference pattern works", () => {
-  const state = observable("selfRefPatternObs", {
+  const state = State("selfRefPatternObs", {
     c: 2,
     doubleC() {
       return state.c * 2;
@@ -150,7 +150,7 @@ test("self-reference pattern works", () => {
 
 test("box pattern", () => {
   // // inherently broken
-  // const state = observable("boxState", {
+  // const state = State("boxState", {
   //   _z: (() => 123) as () => number,
   //   get z() {
   //     return state._z();
@@ -159,7 +159,7 @@ test("box pattern", () => {
   //     state._z = () => v;
   //   },
   // });
-  const state = observable("boxState", {
+  const state = State("boxState", {
     _z: (() => 123) as () => number,
     z() {
       return state._z();

@@ -1,5 +1,5 @@
 import { createStore, Store, Action } from "redux";
-import * as mobx from "mobx";
+import { runInAction as mobxRunInAction } from "mobx";
 import { StateModuleShape, ObservableCollection } from "./types";
 import { loggingExtension } from "./loggingExtension";
 
@@ -48,7 +48,7 @@ function initialize(extension: (...args: any[]) => any) {
     // toLog is the most recent state we've returned from the reducer
     // (unless we're just about to dispatch an action, which shouldn't be the case here)
     if (state !== toLog) {
-      mobx.runInAction(() => {
+      mobxRunInAction(() => {
         Object.entries(state).forEach(([observableName, observableBase]) => {
           const obs = observables[observableName];
           // `obs &&` is to guard against some hypothetical crazy future state where we allow
