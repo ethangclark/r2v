@@ -1,56 +1,75 @@
 # mx2
 
-## React + Mobx without React or Mobx
+## Vue for React
 
-mx2 replaces ~90% of React component props, hooks, and context.
+mx2 is a state management solution for React.
 
-Instead of wrapping state in hooks and passing it around with props or context, mx2 lets you define standalone `State` state objects that you can reference directly from any component in any part of the DOM tree -- so long as you wrap it in `View`. Whenever any `State` field or subfield updates, only `View`s that read from that particular field or subfield update.
+### Example
+
+```tsx
+import { State, View } from 'mx2'
+
+/*
+When IncrementButton is clicked, CountDisplay will update automatically.
+No hooks, props, or context required!
+*/
+
+const state = State({
+  count: 0,
+  increment() {
+    state.setCount(state.count + 1)
+  },
+})
+const CountDisplay = View(() => (
+  <div className="myFancyClassName">{state.count}</div>
+))
+const IncrementButton = View(() => (
+  <button onClick={state.increment}>increment</button>
+))
+const MyComponent = View(() => (
+  <div>
+    <CountDisplay />
+    <IncrementButton />
+  </div>
+))
+```
+
+Instead of defining state in hooks and passing it around with props or context, mx2 lets you define `State` state objects you can reference from any `View`. Whenever a `State` field or subfield updates, only `View`s that read from that particular field or subfield update.
 
 mx2 is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using mx2.
-
-## Logging
-
-mx2 logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
-
-## Comparison with MobX
-
-mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, mx2 `State` objets are valid Mobx `observable`s.
 
 ## Core API
 
 ### View
 
-A React function component wrapped in `View()` will update whenever any `State` field (or subfield) it references updates.
+A React function component wrapped in `View()` will update whenever any `State` field (or subfield) it references in its *synchronous evaluation* updates.
 
 ### State
 
 `State`s are objects for storing and updating application state. They work like this:
 
 ```tsx
-// the first argument is the name of this state as it will appear in Redux devtools, if you're using them
-const state = State('userState', {
-
+const state = State({
   users: [] as Array<User>,
 
-  async fetchUsers(userIds) {
-    const users = await fetch(...)
-
-    // Setters like `setUsers` are created automatically for non-function fields.
-    // State must be modified via synchronous methods; since `await` was called above, the
-    // method is no longer running, so another method (`setUsers`) must be called
-    state.setUsers(users)
-  },
-
-  // this is an `method`
-  setUserName(userId: string | number | whatever, newName: string) {
+  setUserName(userId: string, newName: string) {
     const user = state.users.find(u => u.id === userId)
     if (user) {
-      user.fullName = newName // mutate the object directly
+      // direct object mutations are allowed in synchronous methods :)
+      user.fullName = newName
     } else {
       throw Error('no user with that ID is loaded')
     }
   },
 
+  async fetchUsers(userIds) {
+    const users = await fetch(...)
+
+    // Setters like `setUsers` are created automatically for non-function fields.
+    // They are also included in the resultant object's TypeScript type the object, so this is completely type-safe.
+    // (Executing `state.users = users` would not be allowed here, because this method is not asynchronous)
+    state.setUsers(users)
+  },
 })
 
 export const UserTable = View(() => (
@@ -78,7 +97,7 @@ Functions included in state definitions are automatically transformed into metho
 Methods have 3 defining features:
 
 1. They are the ONLY way to modify state
-2. Their state modifications MUST be synchronous. (It's fine if they trigger an asynchronous process, but they may not update state after `await`ing anything or in a callback.)
+2. They are ONLY allowed to modify state if they are synchronous
 3. They also provide the functionality of `Materialization` functions (described below)
 
 Every time you call an method that updates state, mx2 triggers rerenders on all `View`s that reference any updated fields/subfields.
@@ -234,9 +253,13 @@ Your `Reaction` definition may return a function, if you wish. This function wil
 
 Creating a `Reaction` returns a `stop()` function, which can be called to stop the Reaction from running.
 
-### mobx
+## Logging
 
-While it is not recommended, if you wish to use mx2's version of mobx directly, you may via `import { mobx } from 'mx2'`
+mx2 logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
+
+## Comparison with MobX
+
+mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, mx2 `State` objets are valid Mobx `observable`s.
 
 ## gotchas
 
