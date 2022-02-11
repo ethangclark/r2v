@@ -7,7 +7,7 @@ import {
 import { StateModuleShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-import { Materialization } from "./Materialization";
+import { mobxComputedFn } from "./mobxComputedFn";
 
 const observables: ObservableCollection = {};
 
@@ -42,14 +42,14 @@ export function State<T extends StateModuleShape>(...params: StateParams<T>) {
     }
     annotations[key] = mobxObservable;
     if (value instanceof Function) {
-      const asMaterialization = Materialization(value);
+      const asComputedFn = mobxComputedFn(value);
       const asAction = (...args: any[]) => {
         let result;
         mobxRunInAction(() => {
           const actionStackSnapshot = [...actionStack];
           const actionSignature = `${actionId++}: ${observableName}.${key}`;
           actionStack.push(actionSignature);
-          result = asMaterialization(...args);
+          result = asComputedFn(...args);
           actionStack.pop();
           logResultantState(
             {
@@ -66,7 +66,7 @@ export function State<T extends StateModuleShape>(...params: StateParams<T>) {
       //@ts-expect-error
       hasHadSettersAdded[key] = (...args: any[]) => {
         if (mobxIsComputingDerivation()) {
-          return asMaterialization(...args);
+          return asComputedFn(...args);
         } else {
           return asAction(...args);
         }
