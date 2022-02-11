@@ -1,13 +1,13 @@
-# mx2
+# rvu
 
 ## Vue for React
 
-mx2 is a state management solution for React.
+rvu is a state management solution for React.
 
 ### Example
 
 ```tsx
-import { State, View } from 'mx2'
+import { State, View } from 'rvu'
 
 /*
 When IncrementButton is clicked, CountDisplay will update automatically.
@@ -34,9 +34,9 @@ const MyComponent = View(() => (
 ))
 ```
 
-Instead of defining state in hooks and passing it around with props or context, mx2 lets you define `State` state objects you can reference from any `View`. Whenever a `State` field or subfield updates, only `View`s that read from that particular field or subfield update.
+Instead of defining state in hooks and passing it around with props or context, rvu lets you define `State` state objects you can reference from any `View`. Whenever a `State` field or subfield updates, only `View`s that read from that particular field or subfield update.
 
-mx2 is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using mx2.
+rvu is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using rvu.
 
 ## Core API
 
@@ -100,7 +100,7 @@ Methods have 3 defining features:
 2. They are ONLY allowed to modify state if they are synchronous
 3. They also provide the functionality of `Materialization` functions (described below)
 
-Every time you call an method that updates state, mx2 triggers rerenders on all `View`s that reference any updated fields/subfields.
+Every time you call an method that updates state, rvu triggers rerenders on all `View`s that reference any updated fields/subfields.
 
 Methods (like `fetchUsers()`) are free to read from and modify state on any state.
 
@@ -142,9 +142,9 @@ Here, `View`s and `Reactions` will update when the giant object is set to a new 
 
 #### Setters
 
-Setters are methods that mx2 auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = View('myViewName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
+Setters are methods that rvu auto-generates for you. They are automatically generated for all non-function fields. So, if you define `const myObs = View('myViewName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
-If you define your own setter methods, mx2 will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
+If you define your own setter methods, rvu will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
 
 ```tsx
 const state = State({
@@ -153,7 +153,7 @@ const state = State({
 })
 ```
 
-If you define the setter as `null`, mx2 will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
+If you define the setter as `null`, rvu will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
 
 #### IMPORTANT
 
@@ -187,7 +187,7 @@ For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-r
 `Materialization` functions cache Materialization state, allowing you to avoid expensive recalculations. They work like this:
 
 ```tsx
-// mx2 stores the result of this after it's called once,
+// rvu stores the result of this after it's called once,
 // and only ever recalculates it if `state.users` changes,
 // which makes it very efficient
 const activeUsers = Materialization(() => {
@@ -255,11 +255,11 @@ Creating a `Reaction` returns a `stop()` function, which can be called to stop t
 
 ## Logging
 
-mx2 logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
+rvu logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
 
 ## Comparison with MobX
 
-mx2 condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, mx2 `State` objets are valid Mobx `observable`s.
+rvu condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (3 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, rvu `State` objets are valid Mobx `observable`s.
 
 ## gotchas
 

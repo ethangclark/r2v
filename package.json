@@ -1,16 +1,17 @@
 {
-  "name": "mx2",
+  "name": "rvu",
   "version": "0.4.6",
-  "description": "typesafe react props/hooks/context alternative",
+  "description": "Vue-like React state management",
   "author": "Ethan Gregory Clark <ethangclark@gmail.com>",
-  "repository": "https://github.com/8balloon/mx2",
+  "repository": "https://github.com/8balloon/rvu",
   "license": "MIT",
   "keywords": [
-    "streaming",
-    "typesafe",
+    "react",
+    "vue",
+    "state",
+    "typescript",
     "materialize",
-    "reactive",
-    "live"
+    "reactive"
   ],
   "source": "./src/main.ts",
   "module": "./dist/tsc/main.js",

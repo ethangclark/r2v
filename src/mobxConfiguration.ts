@@ -26,7 +26,7 @@ const defaultConfig: MobxConfig = {
   // If a user is using custom property descriptors, probably a good idea to yell at them.
   safeDescriptors: true,
 
-  // We allow users to leverage our version of mobx via `import { mobx } from 'mx2' if they wish
+  // We allow users to leverage our version of mobx via `import { mobx } from 'rvu' if they wish
   isolateGlobalState: true,
 };
 
