@@ -2,29 +2,28 @@
 
 ## Vue for React
 
-r2v is a state management solution for React.
+r2v is a Vue-like state management solution for React.
+
+The idea is that when you call a method on a state object that updates state, relevant views update. (Sounds simple, right?)
 
 ### Example
 
-When the button is clicked, the count display (which lives in a completely separate component) will update automatically. No hooks, props, or context are required.
+When the button is clicked, the count display will update automatically (even though it lives in a completely separate component). No hooks, props, or context are required.
 
 ```tsx
 import { State, View } from 'r2v'
 
-// the state object and the view functions are free to be moved to e.g., different files
+// the state, CountDisplay, IncrementButton, and Counter are all free to be moved to e.g., different files
 const state = State({
   count: 0,
-  increment() {
-    state.setCount(state.count + 1)
-  },
 })
+const IncrementButton = View(() => (
+  <button onClick={() => state.setCount(state.count + 1)}>increment</button>
+))
 const CountDisplay = View(() => (
   <div className="myFancyClassName">{state.count}</div>
 ))
-const IncrementButton = View(() => (
-  <button onClick={state.increment}>increment</button>
-))
-const MyComponent = View(() => (
+const Counter = View(() => (
   <div>
     <CountDisplay />
     <IncrementButton />
@@ -32,17 +31,54 @@ const MyComponent = View(() => (
 ))
 ```
 
-Whenever a `State` field or subfield updates, all `View`s that read from that particular field or subfield update (and `View`s that do not read from that field/subfield are guaranteed not to rerender).
+The above could also be written like this:
 
-r2v is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using r2v.
+```tsx
+const state = State({
+  count: 0,
+  increment() {
+    state.setCount(state.count + 1)
+  },
+})
+const IncrementButton = View(() => (
+  <button onClick={state.increment}>increment</button>
+))
+```
+
+Or even like this:
+
+```tsx
+const state = State({
+  count: 0,
+  increment() {
+    state.count++
+  },
+})
+const IncrementButton = View(() => (
+  <button onClick={state.increment}>increment</button>
+))
+```
+
+The important part is that all state updates happen inside methods on the state object. If you try to update state outside of a method, like this:
+
+```tsx
+const state = State({
+  count: 0,
+})
+const IncrementButton = View(() => (
+  <button onClick={() => statecount++}>increment</button>
+))
+```
+
+...r2v will throw an error. This is to ensure that all state object mutations are encapsulated in methods. (This makes logging really nice, explained in the logging section, below.)
 
 ## Core API
 
 ### View
 
-A React function component wrapped in `View()` will update whenever any `State` field (or subfield) it references *while rendering* updates. ("While rendering" means that fields or subfields referenced in effects or callbacks will not trigger updates.)
+A React function component wrapped in `View()` will update whenever any `State` field (or subfield) it references *while rendering* updates. (So remember: fields referenced in effects or callbacks will not trigger updates.)
 
-It is highly recommended that you wrap your application's root component in `View`, as well as every custom component. (Wrapping the root component will ensure that child components update even if you forget to wrap them in `View`, but performance will be better if you wrap each custom component in `View` -- if you don't, they will rerender when their parent components update, which is less efficient.)
+It is highly recommended that you wrap all of your applications' custom components in `View`, including the root component. Wrapping the root component will ensure that the UI always updates when state changes, even if you forget to wrap your other components in `View`. However, performance will be better if you wrap each custom component in `View` -- if you don't, they will rerender when their nearest parent `View` component updates, which is less efficient.
 
 ### State
 
@@ -55,19 +91,19 @@ const state = State({
   setUserName(userId: string, newName: string) {
     const user = state.users.find(u => u.id === userId)
     if (user) {
-      // direct object mutation is allowed in synchronous methods :)
       user.fullName = newName
-    } else {
-      throw Error('no user with that ID is loaded')
+      return true
     }
+    return false
   },
 
   async fetchUsers(userIds) {
     const users = await fetch(...)
 
     // Setters like `setUsers` are created automatically for non-function fields.
-    // They are also included in the resultant object's TypeScript type the object, so this is completely type-safe.
-    // (Executing `state.users = users` would not be allowed here, because this method is not asynchronous)
+    // Executing `state.users = users` would not be allowed here, because this method is not synchronous,
+    // so there's no way for r2v to tell that state is being mutated from inside a method unless a method
+    // (like `setUsers`, in this case) is called.
     state.setUsers(users)
   },
 })
@@ -90,7 +126,7 @@ export const UserTable = View(() => (
 ))
 ```
 
-State is logged in Redux devtools if it's installed. If you want your state objects to have names in Redux devtools so you can identify them, you can provide a `name` argument in your state definition, like so:
+State is logged in Redux devtools if it's installed. If you want your state objects to have names in Redux devtools so you can uniquely identify them, you can provide a `name` argument in your state definition, like so:
 
 ```tsx
 const state = state('counterState', {
@@ -109,35 +145,18 @@ Functions included in state definitions are automatically transformed into `Meth
 `Method`s have 3 defining features:
 
 1. They are the ONLY way to modify state
-2. They are ONLY allowed to modify state if they are synchronous
+2. They are ONLY allowed to modify state synchronously
 3. They also provide the functionality of `Materialization` functions (described below)
 
 Every time you call an `Method` that updates state, r2v triggers rerenders on all `View`s that reference any updated fields/subfields.
 
-`Method`s (like `fetchUsers()`) are free to read from and modify state on any state.
+`Method`s are free to read from and modify state on any state object.
 
-One important thing to note: `Method`s may call other `Method`s, and `State`s will not update until the outermost `Method` has finished being (synchronously) executed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`, but this `Method` will only cause 1 render (even though it calls two other `Method`s): `myObs.setNames(first: string, last: string) { state.setFirstName(first); state.setLastName(last) }`
+One important thing to note: `Method`s may call other `Method`s, and `State`s will not update until the outermost `Method` has finished being (synchronously) executed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`, but this will only cause 1 render (even though it calls two other `Method`s): `myObs.setNames(first: string, last: string) { state.setFirstName(first); state.setLastName(last) }`
 
-If you want a generic way to execute several `Method`s together ad-hoc, without having to create higher-level `Method`s, you could create an `Method` runner:
+#### Advanced trick: "box"-ing
 
-```tsx
-const methodRunner = State({
-  runAsMethod(cb: (...args: any[]) => any) {
-    cb();
-  },
-});
-```
-
-and use it like so:
-
-```tsx
-methodRunner.runAsMethod(() => {
-  someObs.someMethod()
-  someObs.someOtherMethod()
-})
-```
-
-If you change a function on an state, it will no longer function as a `Method` after it's been changed, and so it won't be allowed to update state. (If this is a problem for your use case, create an issue and we can assess whether we want to add support for this ability.) A valid use-case for changing a function is if you want to prevent something being transformed into an state (say, a particularly massive object) for performance reasons, but still want Reactions to occur when the _reference_ to that object change. Here's an example:
+Although data that lives in state should behave like normal JavaScript objects, `r2v` does crazy stuff to it (like wrapping all fields in `Proxy`s, recursively). If you're optimizing performance and want to "box" an object to prevent it from being transformed into "smart" state (for the sake of performance or any othe reason), you can "box" data by wrapping it in a function, like this:
 
 ```tsx
 const state = State('boxExample', {
@@ -150,7 +169,9 @@ const state = State('boxExample', {
   },
 })
 ```
-Here, `View`s and `Reactions` will update when the giant object is set to a new value, but won't update to changes on subfields of the giant object. Since turning an object into an state has a computational expense, this may be desirable in some cases.
+Here, `View`s and `Reactions` will update when the giant object is set to a new value, but won't update to changes on subfields of the giant object.
+
+Note: if you change the value of a function like this example, any non-original function will behave like a normal function -- not a r2v `Method`. This meants it will not be allowed to update `State` fields, and it will not function as a `Materialization` (described below).
 
 #### Setter methods
 
@@ -192,7 +213,7 @@ const ClickCounter = View(() => (
 ))
 ```
 
-[Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html), if you are interested.
+[Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html) if you are interested.
 
 #### Materialization
 
