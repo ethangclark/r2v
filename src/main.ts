@@ -1,5 +1,5 @@
 // import first so configuration logic executes first
-export { overrideMobxConfig } from "./mobxConfiguration";
+import "./mobxConfiguration";
 
 export { View } from "./View";
 export { State } from "./State";

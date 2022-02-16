@@ -32,9 +32,9 @@ const defaultConfig: MobxConfig = {
 
 configure(defaultConfig);
 
-export function overrideMobxConfig(params: MobxConfig) {
-  configure({
-    ...defaultConfig,
-    ...params,
-  });
-}
+// export function overrideMobxConfig(params: MobxConfig) {
+//   configure({
+//     ...defaultConfig,
+//     ...params,
+//   });
+// }
