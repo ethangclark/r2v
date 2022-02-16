@@ -42,6 +42,8 @@ r2v is fundamentally different from most state-management solutions, so it's rec
 
 A React function component wrapped in `View()` will update whenever any `State` field (or subfield) it references *while rendering* updates. ("While rendering" means that fields or subfields referenced in effects or callbacks will not trigger updates.)
 
+It is highly recommended that you wrap your application's root component in `View`, as well as every custom component. (Wrapping the root component will ensure that child components update even if you forget to wrap them in `View`, but performance will be better if you wrap each custom component in `View` -- if you don't, they will rerender when their parent components update, which is less efficient.)
+
 ### State
 
 `State`s are objects for storing and updating application state. They work like this:
@@ -190,9 +192,9 @@ const ClickCounter = View(() => (
 ))
 ```
 
-For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-reactivity.html)
+[Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html), if you are interested.
 
-### Materialization
+#### Materialization
 
 `Method`s function as `Materialization` functions when used as such. `Materialization` functions cache Materialization state, allowing you to avoid expensive recalculations. They work like this:
 
@@ -255,10 +257,6 @@ For this reason, TypeScript's "strict" mode is _deeply_ encouraged.
 
 The same rule about state state holds with Materialization state: you must ONLY call `Materialization` functions from WITHIN Views and Reactions for the Views and Reactions to update when Materialization state updates.
 
-## Special use-case API
-
-These exports allow for interoperability with other frameworks.
-
 ### Reaction
 
 #### API: Reaction(def: () => (void | (nonReactiveFollowup: () => void))): function stop(): void
@@ -271,17 +269,9 @@ Your `Reaction` definition may return a function, if you wish. This function wil
 
 Creating a `Reaction` returns a `stop()` function, which can be called to stop the Reaction from running.
 
-### overrideMobxConfig
-
-r2v objects are valid mobx observables. If you want to configure mobx, you can do so via `overrideMobxConfig`, which accepts the same arguments as mobx's `configure` export. The vast majority of users should NOT require this functionality.
-
 ## Logging
 
 r2v logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
-
-## Comparison with MobX
-
-r2v condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (2 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, r2v `State` objets are valid Mobx `observable`s, as mentioned before.
 
 ## gotchas
 
