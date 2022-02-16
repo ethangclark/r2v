@@ -50,6 +50,7 @@ const MyComponent = View(() => {
       <div onClick={() => state2.double()}>double: {state2.doubleB()}</div>
       <div onClick={() => state2.quadruple()}>quadruple</div>
       <InternalComponentTest />
+      <div onClick={() => state1.a++}>Complainer...</div>
     </div>
   );
 });

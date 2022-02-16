@@ -4,10 +4,10 @@ import {
   _isComputingDerivation as mobxIsComputingDerivation,
   makeObservable as mobxMakeObservable,
 } from "mobx";
+import { computedFn as mobxComputedFn } from "mobx-utils";
 import { StateModuleShape, ObservableCollection } from "./types";
 import { addValueSettersWhereNoExist } from "./addSetters";
 import { logResultantState, noteObservable } from "./devToolLogger";
-import { mobxComputedFn } from "./mobxComputedFn";
 
 const observables: ObservableCollection = {};
 

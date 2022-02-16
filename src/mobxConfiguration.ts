@@ -1,14 +1,6 @@
 import { configure } from "mobx";
-import { disableWarning } from "./warningUtils";
 
-const wellIntentionedConfigureErrorMessage =
-  "WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.";
-
-disableWarning(
-  (warning) => warning.includes(wellIntentionedConfigureErrorMessage) // LET IT FAIL >:D
-);
-
-export type MobxConfig = Parameters<typeof configure>[0];
+type MobxConfig = Parameters<typeof configure>[0];
 
 const defaultConfig: MobxConfig = {
   enforceActions: "always", // so we can _easily_ track what happens in redux devtools
