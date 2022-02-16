@@ -52,7 +52,7 @@ function initialize(extension: (...args: any[]) => any) {
         Object.entries(state).forEach(([observableName, observableBase]) => {
           const obs = observables[observableName];
           // `obs &&` is to guard against some hypothetical crazy future state where we allow
-          // the merger of a user's redux store and rvu's logging redux store
+          // the merger of a user's redux store and r2v's logging redux store
           obs &&
             Object.entries(observableBase).forEach(
               ([fieldName, fieldValue]) => {

@@ -1,9 +1,9 @@
 {
-  "name": "rvu",
-  "version": "0.5.1",
-  "description": "Vue-like React state management",
+  "name": "r2v",
+  "version": "0.5.2",
+  "description": "typesafe Vue-like React state management",
   "author": "Ethan Gregory Clark <ethangclark@gmail.com>",
-  "repository": "https://github.com/8balloon/rvu",
+  "repository": "https://github.com/8balloon/r2v",
   "license": "MIT",
   "keywords": [
     "react",

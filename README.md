@@ -1,15 +1,15 @@
-# rvu
+# r2v
 
 ## Vue for React
 
-rvu is a state management solution for React.
+r2v is a state management solution for React.
 
 ### Example
 
 When the button is clicked, the count display (which lives in a completely separate component) will update automatically. No hooks, props, or context are required.
 
 ```tsx
-import { State, View } from 'rvu'
+import { State, View } from 'r2v'
 
 // the state object and the view functions are free to be moved to e.g., different files
 const state = State({
@@ -34,7 +34,7 @@ const MyComponent = View(() => (
 
 Whenever a `State` field or subfield updates, all `View`s that read from that particular field or subfield update (and `View`s that do not read from that field/subfield are guaranteed not to rerender).
 
-rvu is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using rvu.
+r2v is fundamentally different from most state-management solutions, so it's recommended that you read the entire README before using r2v.
 
 ## Core API
 
@@ -110,7 +110,7 @@ Functions included in state definitions are automatically transformed into `Meth
 2. They are ONLY allowed to modify state if they are synchronous
 3. They also provide the functionality of `Materialization` functions (described below)
 
-Every time you call an `Method` that updates state, rvu triggers rerenders on all `View`s that reference any updated fields/subfields.
+Every time you call an `Method` that updates state, r2v triggers rerenders on all `View`s that reference any updated fields/subfields.
 
 `Method`s (like `fetchUsers()`) are free to read from and modify state on any state.
 
@@ -152,9 +152,9 @@ Here, `View`s and `Reactions` will update when the giant object is set to a new 
 
 #### Setter methods
 
-rvu auto-generates setter `Method`s for you. They are automatically generated for all non-function fields. So, if you define `const myObs = View('myViewName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
+r2v auto-generates setter `Method`s for you. They are automatically generated for all non-function fields. So, if you define `const myObs = View('myViewName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
 
-If you define your own setter `Method` for a field, rvu will respect the `Method` you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
+If you define your own setter `Method` for a field, r2v will respect the `Method` you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
 
 ```tsx
 const state = State({
@@ -163,7 +163,7 @@ const state = State({
 })
 ```
 
-If you define the setter as `null`, rvu will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
+If you define the setter as `null`, r2v will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
 
 #### IMPORTANT
 
@@ -200,7 +200,7 @@ For a big breakdown of this idea, [see here](https://mobx.js.org/understanding-r
 const state = State('userState', {
   users: [] as Array<User>,
 
-  // rvu stores the result of this after it's called once,
+  // r2v stores the result of this after it's called once,
   // and only ever recalculates it if `state.users` changes,
   // which makes it very efficient
   activeUsers() {
@@ -273,15 +273,15 @@ Creating a `Reaction` returns a `stop()` function, which can be called to stop t
 
 ### overrideMobxConfig
 
-rvu objects are valid mobx observables. If you want to configure mobx, you can do so via `overrideMobxConfig`, which accepts the same arguments as mobx's `configure` export. The vast majority of users should NOT require this functionality.
+r2v objects are valid mobx observables. If you want to configure mobx, you can do so via `overrideMobxConfig`, which accepts the same arguments as mobx's `configure` export. The vast majority of users should NOT require this functionality.
 
 ## Logging
 
-rvu logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
+r2v logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
 
 ## Comparison with MobX
 
-rvu condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (2 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, rvu `State` objets are valid Mobx `observable`s, as mentioned before.
+r2v condenses all of the power of MobX's massive API (> 100 exports) into a tiny, opinionated API (2 "core" exports + 2 "special use-case" exports). It requires no prior knowledge of MobX. That being said, if you do want to use it with Mobx, r2v `State` objets are valid Mobx `observable`s, as mentioned before.
 
 ## gotchas
 
