@@ -4,6 +4,10 @@ import { render } from "react-dom";
 
 const state1 = State("state1", {
   a: 2,
+  breakerEnabled: false as boolean,
+  break() {
+    throw new Error("Yolo!");
+  },
 });
 const state2 = State("state2", {
   b: 3,
@@ -51,6 +55,8 @@ const MyComponent = View(() => {
       <div onClick={() => state2.quadruple()}>quadruple</div>
       <InternalComponentTest />
       <div onClick={() => state1.a++}>Complainer...</div>
+      <div onClick={() => state1.setBreakerEnabled(true)}>Breaker...</div>
+      {state1.breakerEnabled && state1.break()}
     </div>
   );
 });

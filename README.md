@@ -6,6 +6,8 @@ r2v is a Vue-like state management solution for React.
 
 The idea is that when you call a method on a state object that updates state, relevant views update. (Sounds simple, right?)
 
+`React.useMemo` got you down? r2v is here to help!
+
 ### Example
 
 When the button is clicked, the count display will update automatically (even though it lives in a completely separate component). No hooks, props, or context are required.
@@ -215,7 +217,7 @@ const ClickCounter = View(() => (
 
 [Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html) if you are interested.
 
-#### Materialization
+### Materialization
 
 `Method`s function as `Materialization` functions when used as such. `Materialization` functions cache Materialization state, allowing you to avoid expensive recalculations. They work like this:
 
@@ -246,33 +248,31 @@ export const userState = state
 const User = View(() => (<div>User ${userState.user(userId).fullName} (id: ${userState.user(userId).id})</div>))
 ```
 
-`Materialization` functions are free to reference both obervable state and other `Materialization` function state. So `activeUser` in `activeUserState` is a valid `Materialization` function:
-
+`Materialization` functions are free to reference both obervable state and other `Materialization` function state, like so:
 ```tsx
-const userFullName = Materialization((id: string | number | whatever) => user(id)?.fullName)
+import { State, Materialization } from 'r2v'
 
 const userState = State('userState', {
   users: [] as Array<User>,
+  user(id: string) {
+    return userState.users.find(u => u.id === id) || null
+  },
 })
 const activeUsersState = State('activeUsersState', {
   activeUsers() {
     return userState.users.filter(u => !u.deactivated)
   },
 })
-const activeUserState = State('activeUserState', {
-  // the result of calls to this method will be cached by `id`, automatically,
-  // updating the same as the above case
-  activeUser(id: string) {
-    return activeUsersState.users.find(u => u.id === id) || null
-  }
-})
+
+// the results of this `Materialization` will be cached by `id`, automatically,
+const activeUser = Materialization((id: string) => activeUsersState.activeUsers().find(u => u.id === id) || null)
 ```
 
 #### IMPORTANT
 
-Do not use `try/catch` within a `Materialization` function. Errors here can break `Views` and `Reaction`s. (Due to the nature of JavaScript, there's no way to keep stack traces sane while still allowing some Reactions to work while others have broken.)
+Do not use `try/catch` within a `Materialization` function. Errors here can break `Views` and `Reaction`s.
 
-For this reason, TypeScript's "strict" mode is _deeply_ encouraged.
+For this reason, TypeScript's "strict" mode is highly encouraged.
 
 #### IMPORTANT
 
@@ -298,4 +298,4 @@ r2v logs everything in [Redux DevTools](https://chrome.google.com/webstore/detai
 
 ### dereferencing `State` or `Materialization` fields outside of `View`s or `Reaction`s
 
-This is mentioned above, but worth repeating: if you pull fields off of an `state` _outside_ of an `View` or `Reaction`, and then use those fields _inside_ an `View` or `Reaction`, the `View/Reaction` *will not update* when those fields change on the `state`. You should *only* dereference fields you want to "listen" to *inside* of `View`s or `Reaction`s.
+This is mentioned above, but worth repeating: if you pull fields off of an `state` _outside_ of an `View` or `Reaction`, and then use those fields _inside_ an `View` or `Reaction`, the `View/Reaction` *will not update* when those fields change on the `state` object. You should *only* dereference fields you want to "listen" to *inside* of `View`s or `Reaction`s.
